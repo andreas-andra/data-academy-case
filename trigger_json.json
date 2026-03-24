@@ -1,0 +1,81 @@
+[
+  {
+    "sinkFolder": "bankruptcies",
+    "sinkFilename": "13ff.csv",
+    "sourceRelativeUrl": "StatFin/kony/statfin_kony_pxt_13ff.px",
+    "sourceRequestBody": {
+      "query": [
+        {
+          "code": "Vuosi",
+          "selection": {
+            "filter": "item",
+            "values": ["2020", "2021", "2022", "2023", "2024"]
+          }
+        }
+      ],
+      "response": { "format": "csv" }
+    }
+  },
+  {
+    "sinkFolder": "enterprise-establishments",
+    "sinkFilename": "13wz.csv",
+    "sourceRelativeUrl": "StatFin/alyr/statfin_alyr_pxt_13wz.px",
+    "sourceRequestBody": {
+      "query": [
+        {
+          "code": "Vuosi",
+          "selection": {
+            "filter": "item",
+            "values": ["2020", "2021", "2022", "2023", "2024"]
+          }
+        },
+        {
+          "code": "Kunta",
+          "selection": {
+            "filter": "all",
+            "values": ["*"]
+          }
+        },
+        {
+          "code": "Tiedot",
+          "selection": {
+            "filter": "item",
+            "values": ["Tplukumaara2", "henkmaara2"]
+          }
+        }
+      ],
+      "response": { "format": "csv" }
+    }
+  },
+  {
+    "sinkFolder": "population",
+    "sinkFilename": "12au.csv",
+    "sourceRelativeUrl": "StatFin/kuol/statfin_kuol_pxt_12au.px",
+    "sourceRequestBody": {
+      "query": [
+        {
+          "code": "Vuosi",
+          "selection": {
+            "filter": "item",
+            "values": ["2020", "2021", "2022", "2023", "2024"]
+          }
+        },
+        {
+          "code": "Alue",
+          "selection": {
+            "filter": "all",
+            "values": ["*"]
+          }
+        },
+        {
+          "code": "Tiedot",
+          "selection": {
+            "filter": "item",
+            "values": ["vaesto"]
+          }
+        }
+      ],
+      "response": { "format": "csv" }
+    }
+  }
+]
