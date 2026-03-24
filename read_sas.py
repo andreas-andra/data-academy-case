@@ -1,6 +1,7 @@
 # ---- USER INPUTS (EDIT THESE) ----
-# Keep the leading '?'
-sas = "?sv=2024-11-04&ss=b&srt=sco&sp=rlx&se=2026-06-30T14:27:30Z&st=2026-03-17T07:12:30Z&spr=https&sig=BwG2uKPNT+rJV7KmW0Q4WY4z8366u8/noVXtAFxLozI="
+# SAS token is stored in Databricks secret scope — never hardcode it here
+# To store/update: databricks secrets put-secret academy-case sas_token --string-value "?sv=..."
+sas = dbutils.secrets.get(scope="academy-case", key="sas_token")
 
 storage_account = "dataacademyandreasandrsa"
 container = "raw-data"
