@@ -1,0 +1,42 @@
+version: 2
+
+sources:
+  - name: bronze
+    catalog: data_academy_fi_06
+    schema: andreas_statfin_bronze
+    tables:
+      - name: bronze_statfin_bankruptcies
+        description: "Raw bankruptcy data from Statistics Finland (StatFin kony 13ff)"
+        columns:
+          - name: year
+            description: "Reference year"
+          - name: industries_luok
+            description: "Industry classification"
+          - name: municipality
+            description: "Municipality name"
+          - name: bankruptcies_enterprises
+            description: "Number of enterprises with bankruptcy instigated"
+          - name: bankruptcies_employees
+            description: "Number of employees affected by bankruptcies"
+
+      - name: bronze_statfin_enterprise_establishments
+        description: "Raw enterprise establishment data from Statistics Finland (StatFin alyr 13wz)"
+        columns:
+          - name: year
+            description: "Reference year"
+          - name: municipality
+            description: "Municipality name"
+          - name: establishments_count
+            description: "Number of enterprise establishments"
+          - name: personnel_staff_years
+            description: "Personnel in establishments (staff-years)"
+
+      - name: bronze_statfin_population
+        description: "Raw population and deaths data from Statistics Finland (StatFin kuol 12au)"
+        columns:
+          - name: year
+            description: "Reference year"
+          - name: area
+            description: "Municipality or area name"
+          - name: population
+            description: "Population count"

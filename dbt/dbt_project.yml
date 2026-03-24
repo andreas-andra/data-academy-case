@@ -1,0 +1,25 @@
+name: 'andreas_statfin'
+version: '1.0.0'
+config-version: 2
+
+profile: 'andreas_statfin'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  andreas_statfin:
+    silver:
+      +materialized: table
+      +schema: andreas_statfin_silver
+    gold:
+      +materialized: table
+      +schema: andreas_statfin_gold

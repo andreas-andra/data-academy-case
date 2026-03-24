@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: gold_statfin_municipality_overview
+    description: "Municipality-level overview combining population, enterprise and bankruptcy data"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: population
+        tests: [not_null]

@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: silver_statfin_bankruptcies
+    description: "Cleaned bankruptcy data per municipality and industry"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: industry
+        tests: [not_null]
+      - name: bankruptcies_enterprises
+        tests: [not_null]
+
+  - name: silver_statfin_enterprise_establishments
+    description: "Cleaned enterprise establishment data per municipality"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: establishments_count
+        tests: [not_null]
+
+  - name: silver_statfin_population
+    description: "Cleaned population data per municipality"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: population
+        tests: [not_null]
