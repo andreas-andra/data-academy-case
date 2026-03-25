@@ -2,7 +2,51 @@ version: 2
 
 models:
   - name: gold_statfin_municipality_overview
-    description: "Municipality-level overview combining population, enterprise and bankruptcy data"
+    description: "Wide municipality-level overview combining population, enterprise and bankruptcy data"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: population
+        tests: [not_null]
+
+  - name: dim_municipality
+    description: "Dimension table of all municipalities"
+    columns:
+      - name: municipality_id
+        tests: [not_null, unique]
+      - name: municipality_name
+        tests: [not_null, unique]
+
+  - name: dim_industry
+    description: "Dimension table of industry classifications"
+    columns:
+      - name: industry_id
+        tests: [not_null, unique]
+      - name: industry_name
+        tests: [not_null, unique]
+
+  - name: dim_year
+    description: "Dimension table of years with period labels"
+    columns:
+      - name: year
+        tests: [not_null, unique]
+
+  - name: fact_bankruptcies
+    description: "Fact table — bankruptcies per municipality, industry and year"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: industry
+        tests: [not_null]
+      - name: bankruptcies_enterprises
+        tests: [not_null]
+
+  - name: fact_population
+    description: "Fact table — population and enterprise establishments per municipality and year"
     columns:
       - name: year
         tests: [not_null]
