@@ -71,7 +71,7 @@
           "code": "Tiedot",
           "selection": {
             "filter": "item",
-            "values": ["vaesto", "kuolleet"]
+            "values": ["vaesto", "vm11"]
           }
         }
       ],
