@@ -11,6 +11,11 @@ enterprises_national as (
     where `Municipality` = 'WHOLE COUNTRY'
 ),
 
+population_national as (
+    select * from {{ source('bronze', 'bronze_statfin_population') }}
+    where `Area` = 'WHOLE COUNTRY'
+),
+
 bankruptcies_renamed as (
     select
         cast(`Year` as int)                                                 as year,
@@ -28,6 +33,15 @@ enterprises_renamed as (
         cast(`Personnel in establishments of enterprises (staff-years)` as float)  as total_personnel_staff_years
     from enterprises_national
     where `Year` is not null
+),
+
+population_renamed as (
+    select
+        cast(`Year` as int)         as year,
+        cast(`Population` as int)   as total_population,
+        cast(`Deaths` as int)       as total_deaths
+    from population_national
+    where `Year` is not null
 )
 
 select
@@ -36,6 +50,9 @@ select
     b.bankruptcies_enterprises,
     b.bankruptcies_employees,
     e.total_establishments,
-    e.total_personnel_staff_years
+    e.total_personnel_staff_years,
+    p.total_population,
+    p.total_deaths
 from bankruptcies_renamed b
 left join enterprises_renamed e on b.year = e.year
+left join population_renamed p  on b.year = p.year
