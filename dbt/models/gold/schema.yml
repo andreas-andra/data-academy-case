@@ -54,3 +54,17 @@ models:
         tests: [not_null]
       - name: population
         tests: [not_null]
+
+  - name: fact_finland_economic_health
+    description: "Finland national yearly totals: bankruptcies vs enterprise growth with YoY change metrics"
+    columns:
+      - name: year
+        tests: [not_null, unique]
+
+  - name: fact_bankruptcies_by_industry
+    description: "National bankruptcy counts broken down by industry per year"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: industry
+        tests: [not_null]

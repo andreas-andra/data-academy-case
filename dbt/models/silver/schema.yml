@@ -32,3 +32,13 @@ models:
         tests: [not_null]
       - name: population
         tests: [not_null]
+
+  - name: silver_statfin_national
+    description: "National-level (WHOLE COUNTRY) yearly totals for bankruptcies and enterprise establishments, with industry breakdown"
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: industry
+        tests: [not_null]
+      - name: bankruptcies_enterprises
+        tests: [not_null]
