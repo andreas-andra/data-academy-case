@@ -4,13 +4,13 @@ with source as (
 
 renamed as (
     select
-        cast(year as int)                       as year,
-        municipality,
-        cast(establishments_count as int)       as establishments_count,
-        cast(personnel_staff_years as float)    as personnel_staff_years
+        cast(`Year` as int)                                                         as year,
+        `Municipality`                                                              as municipality,
+        cast(`Establishments of enterprises (number)` as int)                      as establishments_count,
+        cast(`Personnel in establishments of enterprises (staff-years)` as float)  as personnel_staff_years
     from source
-    where municipality != 'WHOLE COUNTRY'
-      and year is not null
+    where `Municipality` != 'WHOLE COUNTRY'
+      and `Year` is not null
 )
 
 select * from renamed

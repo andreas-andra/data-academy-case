@@ -8,35 +8,35 @@ sources:
       - name: bronze_statfin_bankruptcies
         description: "Raw bankruptcy data from Statistics Finland (StatFin kony 13ff)"
         columns:
-          - name: year
+          - name: Year
             description: "Reference year"
-          - name: industries_luok
+          - name: Industries_luok
             description: "Industry classification"
-          - name: municipality
+          - name: Municipality
             description: "Municipality name"
-          - name: bankruptcies_enterprises
+          - name: Bankruptcies instigated, number of enterprises
             description: "Number of enterprises with bankruptcy instigated"
-          - name: bankruptcies_employees
+          - name: Bankruptcies instigated, number of employees
             description: "Number of employees affected by bankruptcies"
 
       - name: bronze_statfin_enterprise_establishments
         description: "Raw enterprise establishment data from Statistics Finland (StatFin alyr 13wz)"
         columns:
-          - name: year
+          - name: Year
             description: "Reference year"
-          - name: municipality
+          - name: Municipality
             description: "Municipality name"
-          - name: establishments_count
+          - name: Establishments of enterprises (number)
             description: "Number of enterprise establishments"
-          - name: personnel_staff_years
+          - name: Personnel in establishments of enterprises (staff-years)
             description: "Personnel in establishments (staff-years)"
 
       - name: bronze_statfin_population
         description: "Raw population and deaths data from Statistics Finland (StatFin kuol 12au)"
         columns:
-          - name: year
+          - name: Year
             description: "Reference year"
-          - name: area
+          - name: Area
             description: "Municipality or area name"
-          - name: population
+          - name: Population
             description: "Population count"

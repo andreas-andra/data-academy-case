@@ -4,14 +4,14 @@ with source as (
 
 renamed as (
     select
-        cast(year as int)                       as year,
-        municipality,
-        industries_luok                         as industry,
-        cast(bankruptcies_enterprises as int)   as bankruptcies_enterprises,
-        cast(bankruptcies_employees as int)     as bankruptcies_employees
+        cast(`Year` as int)                                                 as year,
+        `Municipality`                                                      as municipality,
+        `Industries_luok`                                                   as industry,
+        cast(`Bankruptcies instigated, number of enterprises` as int)       as bankruptcies_enterprises,
+        cast(`Bankruptcies instigated, number of employees` as int)         as bankruptcies_employees
     from source
-    where municipality != 'WHOLE COUNTRY'
-      and year is not null
+    where `Municipality` != 'WHOLE COUNTRY'
+      and `Year` is not null
 )
 
 select * from renamed

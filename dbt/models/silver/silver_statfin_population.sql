@@ -4,12 +4,12 @@ with source as (
 
 renamed as (
     select
-        cast(year as int)           as year,
-        area                        as municipality,
-        cast(population as int)     as population
+        cast(`Year` as int)         as year,
+        `Area`                      as municipality,
+        cast(`Population` as int)   as population
     from source
-    where area != 'WHOLE COUNTRY'
-      and year is not null
+    where `Area` != 'WHOLE COUNTRY'
+      and `Year` is not null
 )
 
 select * from renamed
