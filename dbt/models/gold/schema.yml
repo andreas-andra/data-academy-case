@@ -30,6 +30,8 @@ models:
   - name: dim_year
     description: "Dimension table of years with period labels"
     columns:
+      - name: year_id
+        tests: [not_null, unique]
       - name: year
         tests: [not_null, unique]
 
