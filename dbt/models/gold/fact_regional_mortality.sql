@@ -25,7 +25,6 @@ with_change as (
 select
     wc.year,
     dy.period_label,
-    wc.municipality,
     dm.municipality_id,
     wc.population,
     wc.deaths,
@@ -35,4 +34,4 @@ select
 from with_change wc
 left join dim_m dm on wc.municipality = dm.municipality_name
 left join dim_y dy on wc.year = dy.year
-order by wc.municipality, wc.year
+order by dm.municipality_id, wc.year

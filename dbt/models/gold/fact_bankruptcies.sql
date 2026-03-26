@@ -9,9 +9,7 @@ dim_y as (select * from {{ ref('dim_year') }})
 select
     b.year,
     dy.period_label,
-    b.municipality,
     dm.municipality_id,
-    b.industry,
     di.industry_id,
     b.bankruptcies_enterprises,
     b.bankruptcies_employees

@@ -12,7 +12,6 @@ dim_y as (select * from {{ ref('dim_year') }})
 select
     p.year,
     dy.period_label,
-    p.municipality,
     dm.municipality_id,
     p.population,
     e.establishments_count,

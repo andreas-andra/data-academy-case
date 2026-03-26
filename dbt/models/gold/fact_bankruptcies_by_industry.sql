@@ -10,7 +10,6 @@ dim_i as (select * from {{ ref('dim_industry') }})
 select
     n.year,
     dy.period_label,
-    n.industry,
     di.industry_id,
     n.bankruptcies_enterprises,
     n.bankruptcies_employees,
