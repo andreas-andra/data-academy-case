@@ -12,7 +12,9 @@ yearly_totals as (
         sum(case when industry = 'Total' then bankruptcies_enterprises else 0 end)  as total_bankruptcies_enterprises,
         sum(case when industry = 'Total' then bankruptcies_employees else 0 end)    as total_bankruptcies_employees,
         max(total_establishments)                                                    as total_establishments,
-        max(total_personnel_staff_years)                                             as total_personnel_staff_years
+        max(total_personnel_staff_years)                                             as total_personnel_staff_years,
+        max(total_population)                                                        as total_population,
+        max(total_deaths)                                                            as total_deaths
     from national
     group by year
 ),
@@ -25,6 +27,9 @@ with_growth as (
         total_bankruptcies_employees,
         total_establishments,
         total_personnel_staff_years,
+        total_population,
+        total_deaths,
+        round(total_deaths / nullif(total_population, 0) * 1000, 2)                     as death_rate_per_1000,
         total_establishments - lag(total_establishments) over (order by year)           as new_establishments_yoy,
         round(
             (total_establishments - lag(total_establishments) over (order by year))
