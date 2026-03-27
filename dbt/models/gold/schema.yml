@@ -70,3 +70,25 @@ models:
         tests: [not_null]
       - name: industry_id
         tests: [not_null]
+
+  - name: fact_municipality_resilience
+    description: >
+      Municipality-level business resilience model. Grain: year × municipality.
+      Combines population, enterprise establishment, and bankruptcy data with YoY growth trends,
+      3-year rolling averages, and a weighted resilience score (0–100) derived from percent_rank
+      across municipalities within each year.
+      NOTE: yoy_* columns and resilience_score are NULL for 2020 (first year in dataset — no prior year to diff against).
+      Filter year >= 2021 when querying resilience_score or municipality_business_class.
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: population
+        tests: [not_null]
+      - name: resilience_score
+        description: "Weighted composite score 0–100. NULL for 2020. Higher = more resilient."
+      - name: municipality_business_class
+        description: "Strong (>=80), Stable (>=60), Watchlist (>=40), Fragile (<40). NULL for 2020."
+      - name: top_bankruptcy_industry
+        description: "Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows."
