@@ -6,10 +6,10 @@ bankruptcy_totals as (
     select
         year,
         municipality,
-        sum(bankruptcies_enterprises) as total_bankruptcies_enterprises,
-        sum(bankruptcies_employees) as total_bankruptcies_employees
+        bankruptcies_enterprises as total_bankruptcies_enterprises,
+        bankruptcies_employees as total_bankruptcies_employees
     from {{ ref('silver_statfin_bankruptcies') }}
-    group by year, municipality
+    where industry = 'Total'
 
 ),
 
@@ -202,6 +202,7 @@ final as (
 
 select
     f.year,
+    dy.year_id,
     dm.municipality_id,
     f.municipality,
 

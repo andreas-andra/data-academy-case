@@ -4,6 +4,6 @@ with industries as (
 )
 
 select
-    row_number() over (order by industry)   as industry_id,
+    md5(lower(trim(industry)))              as industry_id,
     industry                                as industry_name
 from industries

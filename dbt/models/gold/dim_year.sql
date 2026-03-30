@@ -9,8 +9,8 @@ with years as (
 )
 
 select
-    row_number() over (order by year)   as year_id,
+    year                            as year_id,
     year,
-    year                                as year_label
+    year                            as year_label
 from years
 order by year

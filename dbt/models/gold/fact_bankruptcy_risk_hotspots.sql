@@ -191,6 +191,7 @@ ranked as (
 
 select
     r.year,
+    dy.year_id,
     dm.municipality_id,
     r.municipality,
     r.population,

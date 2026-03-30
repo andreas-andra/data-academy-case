@@ -12,25 +12,28 @@ models:
         tests: [not_null]
 
   - name: dim_municipality
-    description: "Dimension table of all municipalities"
+    description: "Dimension table of all municipality values found across population, enterprise, and bankruptcy sources, with stable deterministic surrogate keys"
     columns:
       - name: municipality_id
+        description: "Stable hash-based surrogate key derived from municipality_name."
         tests: [not_null, unique]
       - name: municipality_name
         tests: [not_null, unique]
 
   - name: dim_industry
-    description: "Dimension table of industry classifications"
+    description: "Dimension table of industry classifications with stable deterministic surrogate keys"
     columns:
       - name: industry_id
+        description: "Stable hash-based surrogate key derived from industry_name."
         tests: [not_null, unique]
       - name: industry_name
         tests: [not_null, unique]
 
   - name: dim_year
-    description: "Dimension table of years with period labels"
+    description: "Dimension table of years using the natural year value as the key"
     columns:
       - name: year_id
+        description: "Natural key for the year dimension; equal to year."
         tests: [not_null, unique]
       - name: year
         tests: [not_null, unique]
@@ -39,6 +42,9 @@ models:
     description: "Fact table — bankruptcies per municipality, industry and year"
     columns:
       - name: year
+        tests: [not_null]
+      - name: year_id
+        description: "Foreign key to dim_year."
         tests: [not_null]
       - name: municipality_id
         tests: [not_null]
@@ -52,6 +58,9 @@ models:
     columns:
       - name: year
         tests: [not_null]
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests: [not_null]
       - name: municipality_id
         tests: [not_null]
       - name: population
@@ -62,11 +71,17 @@ models:
     columns:
       - name: year
         tests: [not_null, unique]
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests: [not_null]
 
   - name: fact_bankruptcies_by_industry
     description: "National bankruptcy counts broken down by industry per year"
     columns:
       - name: year
+        tests: [not_null]
+      - name: year_id
+        description: "Foreign key to dim_year."
         tests: [not_null]
       - name: industry_id
         tests: [not_null]
@@ -83,6 +98,9 @@ models:
       Filter year >= 2021 when querying yoy_bankruptcies_pct or yoy_bankruptcy_rate_pct.
     columns:
       - name: year
+        tests: [not_null]
+      - name: year_id
+        description: "Foreign key to dim_year."
         tests: [not_null]
       - name: municipality_id
         description: "Foreign key to dim_municipality."
@@ -110,6 +128,9 @@ models:
       Filter year >= 2021 when querying resilience_score or municipality_business_class.
     columns:
       - name: year
+        tests: [not_null]
+      - name: year_id
+        description: "Foreign key to dim_year."
         tests: [not_null]
       - name: municipality_id
         description: "Foreign key to dim_municipality."
