@@ -1,4 +1,7 @@
-with bankruptcy_totals as (
+with dim_m as (select * from {{ ref('dim_municipality') }}),
+dim_y as (select * from {{ ref('dim_year') }}),
+
+bankruptcy_totals as (
 
     select
         year,
@@ -198,41 +201,44 @@ final as (
 )
 
 select
-    year,
-    municipality,
+    f.year,
+    dm.municipality_id,
+    f.municipality,
 
-    population,
-    deaths,
-    establishments_count,
-    personnel_staff_years,
+    f.population,
+    f.deaths,
+    f.establishments_count,
+    f.personnel_staff_years,
 
-    total_bankruptcies_enterprises,
-    total_bankruptcies_employees,
+    f.total_bankruptcies_enterprises,
+    f.total_bankruptcies_employees,
 
-    bankruptcies_per_1000_establishments,
-    bankrupt_employees_per_1000_personnel,
-    personnel_per_establishment,
-    deaths_per_1000_population,
+    f.bankruptcies_per_1000_establishments,
+    f.bankrupt_employees_per_1000_personnel,
+    f.personnel_per_establishment,
+    f.deaths_per_1000_population,
 
-    yoy_population_pct,
-    yoy_establishments_pct,
-    yoy_personnel_pct,
-    yoy_bankruptcies_pct,
+    f.yoy_population_pct,
+    f.yoy_establishments_pct,
+    f.yoy_personnel_pct,
+    f.yoy_bankruptcies_pct,
 
-    round(rolling_3y_avg_bankruptcies, 2)    as rolling_3y_avg_bankruptcies,
-    round(rolling_3y_avg_bankruptcy_rate, 2) as rolling_3y_avg_bankruptcy_rate,
+    round(f.rolling_3y_avg_bankruptcies, 2)    as rolling_3y_avg_bankruptcies,
+    round(f.rolling_3y_avg_bankruptcy_rate, 2) as rolling_3y_avg_bankruptcy_rate,
 
-    top_bankruptcy_industry,
-    top_industry_bankruptcies_enterprises,
-    top_industry_bankruptcies_employees,
+    f.top_bankruptcy_industry,
+    f.top_industry_bankruptcies_enterprises,
+    f.top_industry_bankruptcies_employees,
 
-    resilience_score,
+    f.resilience_score,
 
     case
-        when resilience_score >= 80 then 'Strong'
-        when resilience_score >= 60 then 'Stable'
-        when resilience_score >= 40 then 'Watchlist'
+        when f.resilience_score >= 80 then 'Strong'
+        when f.resilience_score >= 60 then 'Stable'
+        when f.resilience_score >= 40 then 'Watchlist'
         else 'Fragile'
     end as municipality_business_class
 
-from final
+from final f
+left join dim_m dm on f.municipality = dm.municipality_name
+left join dim_y dy on f.year         = dy.year

@@ -71,6 +71,35 @@ models:
       - name: industry_id
         tests: [not_null]
 
+  - name: fact_bankruptcy_risk_hotspots
+    description: >
+      Municipality-level bankruptcy risk hotspot model. Grain: year × municipality.
+      Identifies which municipalities have the highest bankruptcy pressure relative to their
+      business base, using rates per 1000 establishments and per 10000 population.
+      hotspot_risk_class is data-driven via ntile(4) within each year — thresholds are relative
+      to Finnish municipalities that year, not fixed absolute values. Every year always has ~25%
+      of municipalities in each band.
+      NOTE: yoy_* columns are NULL for 2020 (first year in dataset — no prior year to diff against).
+      Filter year >= 2021 when querying yoy_bankruptcies_pct or yoy_bankruptcy_rate_pct.
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: municipality_id
+        description: "Foreign key to dim_municipality."
+        tests: [not_null]
+      - name: municipality
+        tests: [not_null]
+      - name: bankruptcies_per_1000_establishments
+        description: "Primary risk metric. NULL if establishments_count is NULL (dissolved municipalities)."
+      - name: hotspot_risk_class
+        description: "Severe / High / Moderate / Low — relative rank within year via ntile(4). Always ~25% per band per year. Use for 'who is riskiest this year' comparisons. NULL for 2020."
+      - name: bankruptcy_rate_ntile
+        description: "Raw ntile value (1=worst, 4=best) underlying hotspot_risk_class. Partitioned by year."
+      - name: hotspot_absolute_risk_class
+        description: "Severe / High / Moderate / Low — fixed thresholds from dataset-wide p25/p50/p75 percentiles. Band sizes shift year-over-year if national rates change. Use this for Chart 2 trend analysis."
+      - name: hotspot_industry
+        description: "Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows."
+
   - name: fact_municipality_resilience
     description: >
       Municipality-level business resilience model. Grain: year × municipality.
@@ -82,9 +111,10 @@ models:
     columns:
       - name: year
         tests: [not_null]
-      - name: municipality
+      - name: municipality_id
+        description: "Foreign key to dim_municipality."
         tests: [not_null]
-      - name: population
+      - name: municipality
         tests: [not_null]
       - name: resilience_score
         description: "Weighted composite score 0–100. NULL for 2020. Higher = more resilient."
