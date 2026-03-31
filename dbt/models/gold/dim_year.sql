@@ -10,7 +10,6 @@ with years as (
 
 select
     year                            as year_id,
-    year,
-    year                            as year_label
+    year
 from years
 order by year

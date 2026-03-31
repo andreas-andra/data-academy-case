@@ -59,4 +59,3 @@ select
     wg.bankruptcy_growth_pct
 from with_growth wg
 left join dim_y dy on wg.year = dy.year
-order by wg.year

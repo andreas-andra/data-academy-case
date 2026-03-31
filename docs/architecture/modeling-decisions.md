@@ -15,6 +15,7 @@ Examples:
 - `fact_finland_economic_health`: year
 - `fact_bankruptcy_risk_hotspots`: year x municipality
 - `fact_municipality_resilience`: year x municipality
+- `fact_industry_labor_impact_bankruptcies`: year x municipality x industry
 
 Why:
 
@@ -199,6 +200,87 @@ Why:
 
 - avoids presenting the score as objective truth
 - makes it easier for future engineers or domain experts to revisit the assumptions
+
+## 11. Gap-Aware Year-Over-Year Metrics
+
+Some facts use `lag(...)` to compute year-over-year values.
+
+Problem:
+
+- `lag()` alone compares to the previous available row, not necessarily the prior calendar year
+- for sparse series, a row in 2023 could be compared to 2021 and still be labeled YoY
+
+Decision:
+
+- compute `prev_year`
+- only populate `yoy_*` metrics when `prev_year = year - 1`
+
+Applied in:
+
+- `fact_industry_labor_impact_bankruptcies`
+- `fact_municipality_resilience`
+
+Why:
+
+- prevents semantically incorrect trend metrics
+- makes nulls preferable to misleading growth percentages
+
+## 12. Ratio-Of-Sums Instead Of Average-Of-Ratios
+
+One early version of the labor impact model used a rolling average of the already-derived ratio `employees_affected_per_bankruptcy`.
+
+Problem:
+
+- averaging yearly ratios weights small-volume years the same as high-volume years
+- rounded yearly ratios compound distortion when averaged again
+
+Decision:
+
+- calculate `rolling_3y_avg_employees_per_bankruptcy` as a 3-year ratio-of-sums
+- downstream dashboards should also use `sum(bankruptcies_employees) / sum(bankruptcies_enterprises)` at the displayed grain
+
+Applied in:
+
+- `fact_industry_labor_impact_bankruptcies`
+- Genie dashboard prompts for impact-per-bankruptcy widgets
+
+Why:
+
+- preserves the correct weighting of enterprise counts
+- avoids mathematically misleading summaries
+
+## 13. Relative vs Trend-Safe Labor Impact Classification
+
+The industry labor impact use case needs two different classification concepts, just like the hotspots model.
+
+### Relative classification
+
+- `labor_impact_class`
+- based on `ntile(4)` partitioned by year
+
+Use for:
+
+- who is most severe within a specific year
+
+Limitation:
+
+- each year always contains equal quartile buckets by design
+- not suitable for cross-year distribution analysis
+
+### Trend-safe classification
+
+- `labor_impact_absolute_class`
+- `No labor impact` when `bankruptcies_employees = 0`
+- positive rows ranked using fixed dataset-wide global quartile bands across all years combined
+
+Use for:
+
+- trend charts showing how the labor impact distribution changes over time
+
+Why both exist:
+
+- one supports within-year ranking
+- one supports cross-year interpretation without collapsing under zero-heavy data
 
 ## Summary
 
