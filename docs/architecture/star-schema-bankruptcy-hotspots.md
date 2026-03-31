@@ -11,6 +11,8 @@
   - joined by `year_id`
 - `dim_municipality`
   - joined by `municipality_id`
+- `dim_industry`
+  - joined by `hotspot_industry_id`
 
 ## Why This Is A Star Schema
 
@@ -20,6 +22,7 @@ Dimension keys in the fact:
 
 - `year_id`
 - `municipality_id`
+- `hotspot_industry_id`
 
 Measures in the fact include:
 
@@ -37,5 +40,5 @@ See:
 
 ## Notes
 
-- `year` and `municipality` may still appear in the fact table as analyst-friendly descriptive columns
-- the star-schema diagram focuses on the dimensional relationships, not every physical column
+- the fact table exposes only keys and measures in the implemented model
+- descriptive names such as municipality and industry labels live in the dimensions

@@ -91,22 +91,26 @@ models:
       Municipality-level bankruptcy risk hotspot model. Grain: year × municipality.
       Identifies which municipalities have the highest bankruptcy pressure relative to their
       business base, using rates per 1000 establishments and per 10000 population.
+      This fact follows a stricter textbook star-schema shape: it exposes only foreign keys
+      and measures, while descriptive labels live in the dimension tables.
       hotspot_risk_class is data-driven via ntile(4) within each year — thresholds are relative
       to Finnish municipalities that year, not fixed absolute values. Every year always has ~25%
       of municipalities in each band.
       NOTE: yoy_* columns are NULL for 2020 (first year in dataset — no prior year to diff against).
       Filter year >= 2021 when querying yoy_bankruptcies_pct or yoy_bankruptcy_rate_pct.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id]
     columns:
-      - name: year
-        tests: [not_null]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null]
       - name: municipality_id
         description: "Foreign key to dim_municipality."
         tests: [not_null]
-      - name: municipality
-        tests: [not_null]
+      - name: hotspot_industry_id
+        description: "Foreign key to dim_industry for the top bankruptcy industry in the municipality-year."
       - name: bankruptcies_per_1000_establishments
         description: "Primary risk metric. NULL if establishments_count is NULL (dissolved municipalities)."
       - name: hotspot_risk_class
@@ -115,8 +119,10 @@ models:
         description: "Raw ntile value (1=worst, 4=best) underlying hotspot_risk_class. Partitioned by year."
       - name: hotspot_absolute_risk_class
         description: "Severe / High / Moderate / Low — fixed thresholds from dataset-wide p25/p50/p75 percentiles. Band sizes shift year-over-year if national rates change. Use this for Chart 2 trend analysis."
-      - name: hotspot_industry
-        description: "Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows."
+      - name: hotspot_industry_bankruptcies_enterprises
+        description: "Bankrupt enterprise count for the top bankruptcy industry in the municipality-year."
+      - name: hotspot_industry_bankruptcies_employees
+        description: "Bankrupt employee count for the top bankruptcy industry in the municipality-year."
 
   - name: fact_municipality_resilience
     description: >

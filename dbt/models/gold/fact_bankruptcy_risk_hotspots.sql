@@ -6,6 +6,7 @@
 -- relative to actual Finnish data, not hardcoded absolute values.
 
 with dim_m as (select * from {{ ref('dim_municipality') }}),
+dim_i as (select * from {{ ref('dim_industry') }}),
 dim_y as (select * from {{ ref('dim_year') }}),
 
 bankruptcy_totals as (
@@ -28,7 +29,7 @@ top_bankruptcy_industry as (
     select
         year,
         municipality,
-        industry as hotspot_industry,
+        industry,
         bankruptcies_enterprises as hotspot_industry_bankruptcies_enterprises,
         bankruptcies_employees   as hotspot_industry_bankruptcies_employees
     from (
@@ -61,7 +62,7 @@ base as (
         p.deaths,
         coalesce(b.total_bankruptcies_enterprises, 0) as total_bankruptcies_enterprises,
         coalesce(b.total_bankruptcies_employees, 0)   as total_bankruptcies_employees,
-        t.hotspot_industry,
+        t.industry as hotspot_industry,
         coalesce(t.hotspot_industry_bankruptcies_enterprises, 0) as hotspot_industry_bankruptcies_enterprises,
         coalesce(t.hotspot_industry_bankruptcies_employees, 0)   as hotspot_industry_bankruptcies_employees,
 
@@ -190,10 +191,9 @@ ranked as (
 )
 
 select
-    r.year,
     dy.year_id,
     dm.municipality_id,
-    r.municipality,
+    di.industry_id as hotspot_industry_id,
     r.population,
     r.deaths,
     r.establishments_count,
@@ -207,7 +207,6 @@ select
     r.yoy_bankruptcies_pct,
     r.yoy_bankruptcy_rate_pct,
     round(r.rolling_3y_avg_bankruptcy_rate, 2) as rolling_3y_avg_bankruptcy_rate,
-    r.hotspot_industry,
     r.hotspot_industry_bankruptcies_enterprises,
     r.hotspot_industry_bankruptcies_employees,
     r.bankruptcy_rate_ntile,
@@ -224,4 +223,5 @@ select
 
 from ranked r
 left join dim_m dm on r.municipality = dm.municipality_name
+left join dim_i di on r.hotspot_industry = di.industry_name
 left join dim_y dy on r.year         = dy.year

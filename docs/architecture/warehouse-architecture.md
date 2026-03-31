@@ -62,7 +62,7 @@ Examples of modeling problems addressed:
   - purpose: national yearly trend view of bankruptcies, establishments, personnel, population, and deaths
 - `fact_bankruptcy_risk_hotspots`
   - grain: `year x municipality`
-  - purpose: identify municipalities with the highest bankruptcy pressure relative to their business base
+  - purpose: identify municipalities with the highest bankruptcy pressure relative to their business base; implemented as a stricter star with a derived top-industry foreign key
 - `fact_municipality_resilience`
   - grain: `year x municipality`
   - purpose: combine population, establishment, personnel, and bankruptcy signals into a resilience view
