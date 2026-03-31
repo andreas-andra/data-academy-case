@@ -143,3 +143,44 @@ models:
         description: "Strong (>=80), Stable (>=60), Watchlist (>=40), Fragile (<40). NULL for 2020."
       - name: top_bankruptcy_industry
         description: "Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows."
+
+  - name: fact_industry_labor_impact_bankruptcies
+    description: >
+      Industry-level labor impact of bankruptcies. Grain: year × municipality × industry.
+      Identifies where bankruptcies affect the largest number of employees, with YoY trends,
+      3-year rolling averages, and two classification schemes. This fact follows a stricter
+      textbook star-schema shape: it exposes only foreign keys and measures, while descriptive
+      names live in the dimension tables.
+      NOTE: yoy_* columns are NULL for the first year a municipality-industry pair appears,
+      and also NULL whenever a combination is missing in the prior year (sparse series guard —
+      only year-over-year consecutive comparisons are computed).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id, industry_id]
+    columns:
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests: [not_null]
+      - name: municipality_id
+        description: "Foreign key to dim_municipality."
+        tests: [not_null]
+      - name: industry_id
+        description: "Foreign key to dim_industry."
+        tests: [not_null]
+      - name: bankruptcies_enterprises
+        tests: [not_null]
+      - name: bankruptcies_employees
+        tests: [not_null]
+      - name: employees_affected_per_bankruptcy
+        description: "Average employees per bankrupt enterprise. NULL if bankruptcies_enterprises is 0."
+      - name: share_of_municipality_bankrupt_employees_pct
+        description: "This industry's share of all bankrupt employees in the municipality that year."
+      - name: share_of_national_industry_bankrupt_employees_pct
+        description: "This municipality-industry's share of all bankrupt employees nationally in that industry and year."
+      - name: labor_impact_ntile
+        description: "Raw ntile value (1=worst, 4=best) underlying labor_impact_class. Partitioned by year."
+      - name: labor_impact_class
+        description: "Severe / High / Moderate / Low — relative rank within year via ntile(4). Always ~25% per band per year. Use for 'who has highest labor impact this year' comparisons."
+      - name: labor_impact_absolute_class
+        description: "No labor impact / Low / Moderate / High / Severe — zero-impact rows are split into a separate class, while positive rows are assigned to fixed dataset-wide global quartile bands using percent_rank across all years combined. Use this for trend analysis."

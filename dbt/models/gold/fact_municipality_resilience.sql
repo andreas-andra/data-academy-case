@@ -85,6 +85,11 @@ with_trends as (
     select
         *,
 
+        lag(year) over (
+            partition by municipality
+            order by year
+        ) as prev_year,
+
         lag(population) over (
             partition by municipality
             order by year
@@ -126,17 +131,22 @@ with_growth as (
     select
         *,
 
-        round((population - prev_population) * 100.0 / nullif(prev_population, 0), 2)
-            as yoy_population_pct,
+        -- NULL when the prior row is not exactly year-1 (sparse municipality series guard).
+        case when prev_year = year - 1 then
+            round((population - prev_population) * 100.0 / nullif(prev_population, 0), 2)
+        end as yoy_population_pct,
 
-        round((establishments_count - prev_establishments_count) * 100.0 / nullif(prev_establishments_count, 0), 2)
-            as yoy_establishments_pct,
+        case when prev_year = year - 1 then
+            round((establishments_count - prev_establishments_count) * 100.0 / nullif(prev_establishments_count, 0), 2)
+        end as yoy_establishments_pct,
 
-        round((personnel_staff_years - prev_personnel_staff_years) * 100.0 / nullif(prev_personnel_staff_years, 0), 2)
-            as yoy_personnel_pct,
+        case when prev_year = year - 1 then
+            round((personnel_staff_years - prev_personnel_staff_years) * 100.0 / nullif(prev_personnel_staff_years, 0), 2)
+        end as yoy_personnel_pct,
 
-        round((total_bankruptcies_enterprises - prev_total_bankruptcies_enterprises) * 100.0 / nullif(prev_total_bankruptcies_enterprises, 0), 2)
-            as yoy_bankruptcies_pct
+        case when prev_year = year - 1 then
+            round((total_bankruptcies_enterprises - prev_total_bankruptcies_enterprises) * 100.0 / nullif(prev_total_bankruptcies_enterprises, 0), 2)
+        end as yoy_bankruptcies_pct
 
     from with_trends
 

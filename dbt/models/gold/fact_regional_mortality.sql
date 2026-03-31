@@ -34,4 +34,3 @@ select
 from with_change wc
 left join dim_m dm on wc.municipality = dm.municipality_name
 left join dim_y dy on wc.year = dy.year
-order by dm.municipality_id, wc.year

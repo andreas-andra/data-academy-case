@@ -20,4 +20,3 @@ left join dim_y dy on n.year = dy.year
 left join dim_i di on n.industry = di.industry_name
 where n.industry != 'Total'
   and n.industry != 'Industry unknown'
-order by n.year, n.bankruptcies_enterprises desc
