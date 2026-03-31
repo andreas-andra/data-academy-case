@@ -17,6 +17,7 @@ This use case helps identify high-risk municipalities for:
 
 - Model: `fact_bankruptcy_risk_hotspots`
 - Grain: one row per `year x municipality`
+- Star-schema style: foreign keys and measures only; descriptive names come from dimensions
 
 ## Dimensions
 
@@ -24,6 +25,8 @@ This use case helps identify high-risk municipalities for:
   - `year_id`
 - `dim_municipality`
   - `municipality_id`
+- `dim_industry`
+  - `industry_id` used via `hotspot_industry_id`
 
 ## Core Metrics
 
@@ -94,12 +97,14 @@ This prevents misleading dashboard outputs.
 
 - `year_id` uses the natural year value
 - `municipality_id` uses a stable hash-based key
+- `hotspot_industry_id` uses the stable hash-based industry dimension key for the top bankruptcy industry
 
 ## Known Caveats
 
 - `yoy_*` metrics are `NULL` in 2020 because there is no prior year in the dataset
 - some dissolved municipalities or `Unknown` values may still appear depending on source coverage
 - hotspot thresholds are descriptive and comparative, not causal or predictive
+- dashboard tools should join to dimensions for municipality, year, and hotspot-industry names
 
 ## Recommended Dashboard Views
 

@@ -156,6 +156,21 @@ Why both exist:
 - one supports within-year ranking
 - one supports cross-year trend interpretation
 
+## 7a. Textbook Star Representation For Derived Categories
+
+The hotspots model includes a derived "top bankruptcy industry" concept at municipality-year grain.
+
+Decision:
+
+- expose `hotspot_industry_id` instead of a raw text industry name in the fact
+- keep the descriptive industry name in `dim_industry`
+
+Why:
+
+- preserves a stricter textbook star-schema shape
+- keeps the fact table limited to keys and measures
+- makes the implemented model align with the conceptual diagram
+
 ## 8. Removing Misleading Period Labels
 
 An earlier version of the year dimension used labels like:
