@@ -1,9 +1,19 @@
 with municipalities as (
-    select distinct municipality
+    select municipality
     from {{ ref('silver_statfin_population') }}
+
+    union
+
+    select municipality
+    from {{ ref('silver_statfin_enterprise_establishments') }}
+
+    union
+
+    select municipality
+    from {{ ref('silver_statfin_bankruptcies') }}
 )
 
 select
-    row_number() over (order by municipality)   as municipality_id,
+    md5(lower(trim(municipality)))              as municipality_id,
     municipality                                as municipality_name
 from municipalities

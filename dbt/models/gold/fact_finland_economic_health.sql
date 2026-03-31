@@ -5,6 +5,8 @@ with national as (
     select * from {{ ref('silver_statfin_national') }}
 ),
 
+dim_y as (select * from {{ ref('dim_year') }}),
+
 -- Total bankruptcies per year (all industries combined)
 yearly_totals as (
     select
@@ -42,5 +44,19 @@ with_growth as (
     from yearly_totals
 )
 
-select * from with_growth
-order by year
+select
+    wg.year,
+    dy.year_id,
+    wg.total_bankruptcies_enterprises,
+    wg.total_bankruptcies_employees,
+    wg.total_establishments,
+    wg.total_personnel_staff_years,
+    wg.total_population,
+    wg.total_deaths,
+    wg.death_rate_per_1000,
+    wg.new_establishments_yoy,
+    wg.establishment_growth_pct,
+    wg.bankruptcy_growth_pct
+from with_growth wg
+left join dim_y dy on wg.year = dy.year
+order by wg.year

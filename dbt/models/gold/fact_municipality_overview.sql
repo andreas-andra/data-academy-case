@@ -50,7 +50,7 @@ joined as (
 
 select
     j.year,
-    dy.period_label,
+    dy.year_id,
     dm.municipality_id,
     j.population,
     j.deaths,

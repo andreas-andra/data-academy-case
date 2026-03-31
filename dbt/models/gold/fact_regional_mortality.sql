@@ -24,7 +24,7 @@ with_change as (
 
 select
     wc.year,
-    dy.period_label,
+    dy.year_id,
     dm.municipality_id,
     wc.population,
     wc.deaths,
