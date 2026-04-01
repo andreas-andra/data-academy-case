@@ -13,11 +13,8 @@ with_change as (
         municipality,
         population,
         deaths,
-        population - lag(population) over (partition by municipality order by year)     as population_change_yoy,
-        round(
-            (population - lag(population) over (partition by municipality order by year))
-            / nullif(lag(population) over (partition by municipality order by year), 0) * 100, 2
-        )                                                                               as population_change_pct,
+        lag(year) over (partition by municipality order by year)                        as prev_year,
+        lag(population) over (partition by municipality order by year)                  as prev_population,
         round(deaths / nullif(population, 0) * 1000, 2)                                as death_rate_per_1000
     from pop
 )
@@ -28,8 +25,15 @@ select
     dm.municipality_id,
     wc.population,
     wc.deaths,
-    wc.population_change_yoy,
-    wc.population_change_pct,
+    case when wc.prev_year = wc.year - 1 then
+        wc.population - wc.prev_population
+    end as population_change_yoy,
+    case when wc.prev_year = wc.year - 1 then
+        round(
+            (wc.population - wc.prev_population)
+            / nullif(wc.prev_population, 0) * 100, 2
+        )
+    end as population_change_pct,
     wc.death_rate_per_1000
 from with_change wc
 left join dim_m dm on wc.municipality = dm.municipality_name

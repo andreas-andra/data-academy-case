@@ -6,17 +6,27 @@ This folder contains business-facing documentation for the gold-layer use cases 
 
 1. `bankruptcy-risk-hotspots.md`
    Municipality-level bankruptcy pressure relative to local business base.
-2. `industry-labor-impact-bankruptcies.md`
+2. `bankruptcy-trends-by-industry.md`
+   National industry-level view of which sectors drive bankruptcies over time.
+3. `finland-economic-health.md`
+   Finland-wide annual view of bankruptcies, enterprise base, population, and deaths.
+4. `municipality-business-resilience.md`
+   Municipality-level composite resilience view across business activity, population, and bankruptcy stress.
+5. `municipality-overview.md`
+   Wide municipality monitoring view combining demographic, business-base, and bankruptcy totals.
+6. `regional-mortality-and-population-change.md`
+   Municipality-level mortality and population-change trend view.
+7. `industry-labor-impact-bankruptcies.md`
    Industry- and municipality-level view of how many employees are affected by bankruptcy events.
-3. `industry-bankruptcy-specialization.md`
+8. `industry-bankruptcy-specialization.md`
    Municipality- and industry-level view of where bankruptcy structure is overrepresented relative to the national pattern.
 
-## Planned Use Cases
+## Supporting Facts Documented In Architecture
 
-1. Municipality Business Resilience
-2. Finland Economic Health
-3. Municipality Overview
-4. Regional Mortality and Population Change
+- `fact_bankruptcies`
+- `fact_population`
+
+These are reusable gold facts with architecture docs and diagram sources, but they are not currently framed as standalone dashboard use cases.
 
 ## Related Dashboard Assets
 

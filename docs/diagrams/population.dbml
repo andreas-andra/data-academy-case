@@ -1,0 +1,27 @@
+Table dim_year {
+  year_id int [pk]
+  year int [not null]
+}
+
+Table dim_municipality {
+  municipality_id varchar(32) [pk]
+  municipality_name varchar [not null]
+}
+
+Table fact_population {
+  year int
+  year_id int [not null]
+  municipality_id varchar(32) [not null]
+  population int
+  establishments_count int
+  personnel_staff_years int
+}
+
+Ref: fact_population.year_id > dim_year.year_id
+Ref: fact_population.municipality_id > dim_municipality.municipality_id
+
+Index fact_population_grain {
+  fact_population.year_id
+  fact_population.municipality_id
+  [unique]
+}
