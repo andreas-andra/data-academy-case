@@ -1,0 +1,40 @@
+Table dim_year {
+  year_id int [pk]
+  year int [not null]
+}
+
+Table dim_municipality {
+  municipality_id varchar(32) [pk]
+  municipality_name varchar [not null]
+}
+
+Table dim_industry {
+  industry_id varchar(32) [pk]
+  industry_name varchar [not null]
+}
+
+Table fact_industry_labor_impact_bankruptcies {
+  year_id int [not null]
+  municipality_id varchar(32) [not null]
+  industry_id varchar(32) [not null]
+  bankruptcies_enterprises int
+  bankruptcies_employees int
+  employees_affected_per_bankruptcy decimal(10,2)
+  share_of_municipality_bankrupt_employees_pct decimal(10,2)
+  share_of_national_industry_bankrupt_employees_pct decimal(10,2)
+  yoy_bankruptcies_employees_pct decimal(10,2)
+  yoy_bankruptcies_enterprises_pct decimal(10,2)
+  rolling_3y_avg_bankruptcies_employees decimal(10,2)
+  rolling_3y_avg_employees_per_bankruptcy decimal(10,2)
+  labor_impact_ntile int
+  labor_impact_class varchar
+  labor_impact_absolute_class varchar
+
+  indexes {
+    (year_id, municipality_id, industry_id) [unique]
+  }
+}
+
+Ref: fact_industry_labor_impact_bankruptcies.year_id > dim_year.year_id
+Ref: fact_industry_labor_impact_bankruptcies.municipality_id > dim_municipality.municipality_id
+Ref: fact_industry_labor_impact_bankruptcies.industry_id > dim_industry.industry_id

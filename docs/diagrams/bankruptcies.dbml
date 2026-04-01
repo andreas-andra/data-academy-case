@@ -20,15 +20,12 @@ Table fact_bankruptcies {
   industry_id varchar(32) [not null]
   bankruptcies_enterprises int
   bankruptcies_employees int
+
+  indexes {
+    (year_id, municipality_id, industry_id) [unique]
+  }
 }
 
 Ref: fact_bankruptcies.year_id > dim_year.year_id
 Ref: fact_bankruptcies.municipality_id > dim_municipality.municipality_id
 Ref: fact_bankruptcies.industry_id > dim_industry.industry_id
-
-Index fact_bankruptcies_grain {
-  fact_bankruptcies.year_id
-  fact_bankruptcies.municipality_id
-  fact_bankruptcies.industry_id
-  [unique]
-}

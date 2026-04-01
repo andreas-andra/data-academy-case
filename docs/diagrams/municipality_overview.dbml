@@ -21,13 +21,11 @@ Table fact_municipality_overview {
   total_bankruptcies_employees int
   bankruptcies_per_1000_establishments decimal(10,2)
   bankruptcies_per_100k_population decimal(10,2)
+
+  indexes {
+    (year_id, municipality_id) [unique]
+  }
 }
 
 Ref: fact_municipality_overview.year_id > dim_year.year_id
 Ref: fact_municipality_overview.municipality_id > dim_municipality.municipality_id
-
-Index fact_municipality_overview_grain {
-  fact_municipality_overview.year_id
-  fact_municipality_overview.municipality_id
-  [unique]
-}

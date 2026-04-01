@@ -36,6 +36,7 @@ Measures in the fact include:
 
 See:
 
+- `docs/diagrams/bankruptcy_risk_hotspots.dbml`
 - `docs/diagrams/bankruptcy_risk_hotspots.png`
 
 ## Notes

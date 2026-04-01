@@ -81,6 +81,7 @@ This is slightly less convenient for direct BI exploration, but more aligned wit
 
 See:
 
+- `docs/diagrams/industry_labor_impact_bankruptcies.dbml`
 - `docs/diagrams/industry labor impact bankruptcies.png`
 
 ## Notes

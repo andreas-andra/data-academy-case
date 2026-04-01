@@ -16,11 +16,10 @@ Table fact_finland_economic_health {
   new_establishments_yoy int
   establishment_growth_pct decimal(10,2)
   bankruptcy_growth_pct decimal(10,2)
+
+  indexes {
+    (year_id) [unique]
+  }
 }
 
 Ref: fact_finland_economic_health.year_id > dim_year.year_id
-
-Index fact_finland_economic_health_grain {
-  fact_finland_economic_health.year_id
-  [unique]
-}

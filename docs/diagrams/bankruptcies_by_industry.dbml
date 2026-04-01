@@ -15,13 +15,11 @@ Table fact_bankruptcies_by_industry {
   bankruptcies_enterprises int
   bankruptcies_employees int
   share_of_total_pct decimal(10,2)
+
+  indexes {
+    (year_id, industry_id) [unique]
+  }
 }
 
 Ref: fact_bankruptcies_by_industry.year_id > dim_year.year_id
 Ref: fact_bankruptcies_by_industry.industry_id > dim_industry.industry_id
-
-Index fact_bankruptcies_by_industry_grain {
-  fact_bankruptcies_by_industry.year_id
-  fact_bankruptcies_by_industry.industry_id
-  [unique]
-}
