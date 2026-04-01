@@ -81,6 +81,25 @@ These are strict — follow them in every gold model:
 - **DBML diagrams** (`docs/diagrams/*.dbml`): Table definitions with PKs, FKs, indexes, and Ref lines
 - **Architecture docs** (`docs/architecture/`): Explain modeling decisions and structure
 
+## Git Workflow
+
+All agents must follow these rules:
+
+- **Never commit directly to `main`** — always create a feature branch first
+- **Branch naming**: `feature/<short-description>`, e.g. `feature/add-mortality-model`
+- **Stash local changes** before switching branches to avoid losing work
+- **Merge via `--no-ff`** to preserve branch history when merging to main
+- **Push branches** to origin before merging so work is backed up
+- **One concern per branch** — don't mix unrelated changes
+
+### Workflow
+
+1. `git checkout -b feature/<name>` from `main`
+2. Make changes and commit with descriptive messages
+3. `git push origin feature/<name>`
+4. Merge to main: `git switch main && git merge --no-ff feature/<name>`
+5. `git push origin main`
+
 ## Key Files
 
 - `README.md` — project overview
