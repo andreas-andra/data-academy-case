@@ -70,6 +70,12 @@ Additional documentation is organized under `docs/`:
 Start here for the current featured use case:
 
 - `docs/use-cases/bankruptcy-risk-hotspots.md`
+- `docs/use-cases/bankruptcy-trends-by-industry.md`
+- `docs/use-cases/finland-economic-health.md`
+- `docs/use-cases/municipality-business-resilience.md`
+- `docs/use-cases/municipality-overview.md`
+- `docs/use-cases/regional-mortality-and-population-change.md`
+- `docs/use-cases/industry-labor-impact-bankruptcies.md`
 - `docs/use-cases/industry-bankruptcy-specialization.md`
 
 ## Running dbt
@@ -104,6 +110,8 @@ This branch is being used to document multiple small business-facing use cases. 
 5. Municipality Overview
 6. Regional Mortality and Population Change
 7. Industry Bankruptcy Specialization
+
+Foundational supporting facts such as `fact_bankruptcies` and `fact_population` are documented in the architecture layer rather than as standalone business use cases.
 
 ## Key Modeling Lessons
 

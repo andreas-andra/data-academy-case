@@ -1,0 +1,49 @@
+Table dim_year {
+  year_id int [pk]
+  year int [not null]
+}
+
+Table dim_municipality {
+  municipality_id varchar(32) [pk]
+  municipality_name varchar [not null]
+}
+
+Table dim_industry {
+  industry_id varchar(32) [pk]
+  industry_name varchar [not null]
+}
+
+Table fact_industry_bankruptcy_specialization {
+  year_id int [not null]
+  municipality_id varchar(32) [not null]
+  industry_id varchar(32) [not null]
+  bankruptcies_enterprises int
+  bankruptcies_employees int
+  municipality_total_bankruptcies_enterprises int
+  national_industry_bankruptcies_enterprises int
+  national_total_bankruptcies_enterprises int
+  municipality_total_bankruptcies_employees int
+  national_industry_bankruptcies_employees int
+  national_total_bankruptcies_employees int
+  municipality_industry_bankruptcy_share_pct decimal(10,2)
+  national_industry_bankruptcy_share_pct decimal(10,2)
+  municipality_industry_bankrupt_employees_share_pct decimal(10,2)
+  national_industry_bankrupt_employees_share_pct decimal(10,2)
+  bankruptcy_specialization_lq decimal(10,3)
+  bankruptcy_employee_specialization_lq decimal(10,3)
+  specialization_gap_pct_points decimal(10,2)
+  yoy_bankruptcy_specialization_lq_pct decimal(10,2)
+  rolling_3y_avg_specialization_lq decimal(10,3)
+  specialization_ntile int
+  specialization_support_class varchar
+  specialization_class varchar
+  specialization_absolute_class varchar
+
+  indexes {
+    (year_id, municipality_id, industry_id) [unique]
+  }
+}
+
+Ref: fact_industry_bankruptcy_specialization.year_id > dim_year.year_id
+Ref: fact_industry_bankruptcy_specialization.municipality_id > dim_municipality.municipality_id
+Ref: fact_industry_bankruptcy_specialization.industry_id > dim_industry.industry_id

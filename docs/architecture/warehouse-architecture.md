@@ -48,22 +48,32 @@ Examples of modeling problems addressed:
 
 ## Current Documentation Assets
 
-- diagram: `docs/diagrams/bankruptcy_risk_hotspots.png`
-- diagram: `docs/diagrams/industry labor impact bankruptcies.png`
-- diagram: `docs/diagrams/industry_bankruptcy_specialization.png`
-- diagram source: `docs/diagrams/industry_bankruptcy_specialization.dbml`
-- use case: `docs/use-cases/bankruptcy-risk-hotspots.md`
-- use case: `docs/use-cases/industry-bankruptcy-specialization.md`
-- star schema: `docs/architecture/star-schema-bankruptcy-hotspots.md`
-- star schema: `docs/architecture/star-schema-industry-bankruptcy-specialization.md`
-- star schema: `docs/architecture/star-schema-industry-labor-impact-bankruptcies.md`
-- top-level project overview: `README.md`
+- rendered diagrams currently exist for hotspot, labor-impact, and specialization use cases
+- DBML diagram sources live in `docs/diagrams/`
+- fact-level star-schema notes live in `docs/architecture/`
+- business-facing use-case docs live in `docs/use-cases/`
+- top-level project overview lives in `README.md`
 
 ## Gold Models By Use Case
 
+- `fact_bankruptcies`
+  - grain: `year x municipality x industry`
+  - purpose: reusable base bankruptcy fact with full industry coverage, including aggregate source rows
+- `fact_population`
+  - grain: `year x municipality`
+  - purpose: reusable municipality denominator fact for population, establishments, and personnel
+- `fact_municipality_overview`
+  - grain: `year x municipality`
+  - purpose: wide municipality monitoring fact that combines demographic, business-base, and bankruptcy totals
 - `fact_finland_economic_health`
   - grain: `year`
   - purpose: national yearly trend view of bankruptcies, establishments, personnel, population, and deaths
+- `fact_bankruptcies_by_industry`
+  - grain: `year x industry`
+  - purpose: national yearly bankruptcy mix by industry with share-of-total context
+- `fact_regional_mortality`
+  - grain: `year x municipality`
+  - purpose: track municipality deaths, death rates, and population change over time
 - `fact_bankruptcy_risk_hotspots`
   - grain: `year x municipality`
   - purpose: identify municipalities with the highest bankruptcy pressure relative to their business base; implemented as a stricter star with a derived top-industry foreign key

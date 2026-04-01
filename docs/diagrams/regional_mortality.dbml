@@ -1,0 +1,27 @@
+Table dim_year {
+  year_id int [pk]
+  year int [not null]
+}
+
+Table dim_municipality {
+  municipality_id varchar(32) [pk]
+  municipality_name varchar [not null]
+}
+
+Table fact_regional_mortality {
+  year int
+  year_id int [not null]
+  municipality_id varchar(32) [not null]
+  population int
+  deaths int
+  population_change_yoy int
+  population_change_pct decimal(10,2)
+  death_rate_per_1000 decimal(10,2)
+
+  indexes {
+    (year_id, municipality_id) [unique]
+  }
+}
+
+Ref: fact_regional_mortality.year_id > dim_year.year_id
+Ref: fact_regional_mortality.municipality_id > dim_municipality.municipality_id

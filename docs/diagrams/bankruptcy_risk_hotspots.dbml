@@ -1,0 +1,46 @@
+Table dim_year {
+  year_id int [pk]
+  year int [not null]
+}
+
+Table dim_municipality {
+  municipality_id varchar(32) [pk]
+  municipality_name varchar [not null]
+}
+
+Table dim_industry {
+  industry_id varchar(32) [pk]
+  industry_name varchar [not null]
+}
+
+Table fact_bankruptcy_risk_hotspots {
+  year_id int [not null]
+  municipality_id varchar(32) [not null]
+  hotspot_industry_id varchar(32)
+  population int
+  deaths int
+  establishments_count int
+  personnel_staff_years int
+  total_bankruptcies_enterprises int
+  total_bankruptcies_employees int
+  bankruptcies_per_1000_establishments decimal(10,2)
+  bankrupt_employees_per_1000_personnel decimal(10,2)
+  bankruptcies_per_10000_population decimal(10,2)
+  personnel_per_establishment decimal(10,2)
+  yoy_bankruptcies_pct decimal(10,2)
+  yoy_bankruptcy_rate_pct decimal(10,2)
+  rolling_3y_avg_bankruptcy_rate decimal(10,2)
+  hotspot_industry_bankruptcies_enterprises int
+  hotspot_industry_bankruptcies_employees int
+  bankruptcy_rate_ntile int
+  hotspot_risk_class varchar
+  hotspot_absolute_risk_class varchar
+
+  indexes {
+    (year_id, municipality_id) [unique]
+  }
+}
+
+Ref: fact_bankruptcy_risk_hotspots.year_id > dim_year.year_id
+Ref: fact_bankruptcy_risk_hotspots.municipality_id > dim_municipality.municipality_id
+Ref: fact_bankruptcy_risk_hotspots.hotspot_industry_id > dim_industry.industry_id

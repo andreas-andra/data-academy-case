@@ -1,0 +1,44 @@
+Table dim_year {
+  year_id int [pk]
+  year int [not null]
+}
+
+Table dim_municipality {
+  municipality_id varchar(32) [pk]
+  municipality_name varchar [not null]
+}
+
+Table fact_municipality_resilience {
+  year int
+  year_id int [not null]
+  municipality_id varchar(32) [not null]
+  municipality varchar
+  population int
+  deaths int
+  establishments_count int
+  personnel_staff_years int
+  total_bankruptcies_enterprises int
+  total_bankruptcies_employees int
+  bankruptcies_per_1000_establishments decimal(10,2)
+  bankrupt_employees_per_1000_personnel decimal(10,2)
+  personnel_per_establishment decimal(10,2)
+  deaths_per_1000_population decimal(10,2)
+  yoy_population_pct decimal(10,2)
+  yoy_establishments_pct decimal(10,2)
+  yoy_personnel_pct decimal(10,2)
+  yoy_bankruptcies_pct decimal(10,2)
+  rolling_3y_avg_bankruptcies decimal(10,2)
+  rolling_3y_avg_bankruptcy_rate decimal(10,2)
+  top_bankruptcy_industry varchar
+  top_industry_bankruptcies_enterprises int
+  top_industry_bankruptcies_employees int
+  resilience_score decimal(10,2)
+  municipality_business_class varchar
+
+  indexes {
+    (year_id, municipality_id) [unique]
+  }
+}
+
+Ref: fact_municipality_resilience.year_id > dim_year.year_id
+Ref: fact_municipality_resilience.municipality_id > dim_municipality.municipality_id

@@ -2,11 +2,24 @@ version: 2
 
 models:
   - name: fact_municipality_overview
-    description: "Fact table — wide municipality-level overview combining population, enterprise and bankruptcy data"
+    description: >
+      Municipality-level overview fact. Grain: year × municipality.
+      Combines population, deaths, establishments, personnel, and municipality-level
+      bankruptcy totals into one wide monitoring fact for high-level dashboarding.
+      The implemented model keeps the natural year value as a helper column alongside
+      `year_id`.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id]
     columns:
       - name: year
         tests: [not_null]
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests: [not_null]
       - name: municipality_id
+        description: "Foreign key to dim_municipality."
         tests: [not_null]
       - name: population
         tests: [not_null]
@@ -39,7 +52,16 @@ models:
         tests: [not_null, unique]
 
   - name: fact_bankruptcies
-    description: "Fact table — bankruptcies per municipality, industry and year"
+    description: >
+      Base bankruptcy fact. Grain: year × municipality × industry.
+      Exposes bankrupt enterprise and employee counts using shared year, municipality,
+      and industry dimensions. This model preserves the source's full industry coverage,
+      including aggregate rows such as `Total` and `Industry unknown`, so downstream
+      use cases should filter or aggregate carefully.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id, industry_id]
     columns:
       - name: year
         tests: [not_null]
@@ -54,7 +76,14 @@ models:
         tests: [not_null]
 
   - name: fact_population
-    description: "Fact table — population and enterprise establishments per municipality and year"
+    description: >
+      Municipality population and business base fact. Grain: year × municipality.
+      Combines population with establishment count and personnel staff years to provide
+      a reusable denominator fact for municipality-level analysis.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id]
     columns:
       - name: year
         tests: [not_null]
@@ -67,16 +96,27 @@ models:
         tests: [not_null]
 
   - name: fact_finland_economic_health
-    description: "Finland national yearly totals: bankruptcies vs enterprise growth with YoY change metrics"
+    description: >
+      Finland-level economic health fact. Grain: year.
+      Summarizes annual national totals for bankruptcies, employees affected, establishments,
+      personnel, population, and deaths, plus year-over-year growth indicators.
     columns:
       - name: year
         tests: [not_null, unique]
       - name: year_id
         description: "Foreign key to dim_year."
-        tests: [not_null]
+        tests: [not_null, unique]
 
   - name: fact_bankruptcies_by_industry
-    description: "National bankruptcy counts broken down by industry per year"
+    description: >
+      National industry bankruptcy fact. Grain: year × industry.
+      Breaks national bankruptcies down by industry and includes each industry's annual
+      share of total bankruptcies. Aggregate rows such as `Total` and `Industry unknown`
+      are excluded to preserve a clean industry grain.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, industry_id]
     columns:
       - name: year
         tests: [not_null]
@@ -130,8 +170,14 @@ models:
       Combines population, enterprise establishment, and bankruptcy data with YoY growth trends,
       3-year rolling averages, and a weighted resilience score (0–100) derived from percent_rank
       across municipalities within each year.
+      The implemented model keeps helper descriptive columns (`municipality`, `top_bankruptcy_industry`)
+      in the fact for exploration convenience.
       NOTE: yoy_* columns and resilience_score are NULL for 2020 (first year in dataset — no prior year to diff against).
       Filter year >= 2021 when querying resilience_score or municipality_business_class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id]
     columns:
       - name: year
         tests: [not_null]
@@ -149,6 +195,36 @@ models:
         description: "Strong (>=80), Stable (>=60), Watchlist (>=40), Fragile (<40). NULL for 2020."
       - name: top_bankruptcy_industry
         description: "Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows."
+
+  - name: fact_regional_mortality
+    description: >
+      Municipality-level mortality and population change fact. Grain: year × municipality.
+      Tracks deaths, death rate, and year-over-year population change for regional trend analysis.
+      The implemented model keeps the natural year value as a helper column alongside `year_id`.
+      NOTE: population_change_* columns are NULL when the municipality does not have a row in the prior calendar year.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id]
+    columns:
+      - name: year
+        tests: [not_null]
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests: [not_null]
+      - name: municipality_id
+        description: "Foreign key to dim_municipality."
+        tests: [not_null]
+      - name: population
+        tests: [not_null]
+      - name: deaths
+        tests: [not_null]
+      - name: population_change_yoy
+        description: "Absolute year-over-year population change. NULL for first or non-consecutive municipality years."
+      - name: population_change_pct
+        description: "Percent year-over-year population change. NULL for first or non-consecutive municipality years."
+      - name: death_rate_per_1000
+        description: "Deaths per 1000 population in the municipality-year."
 
   - name: fact_industry_labor_impact_bankruptcies
     description: >
