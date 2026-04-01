@@ -19,6 +19,8 @@ The current focus is municipality-level economic analysis in Finland, especially
 - business resilience
 - national economic health
 - municipality-level demographic and business change
+- municipality-industry labor impact from bankruptcies
+- municipality-industry bankruptcy specialization relative to national structure
 
 ## Data Flow
 
@@ -53,6 +55,8 @@ This avoids unstable surrogate keys during rebuilds and makes the data model eas
 - `fact_municipality_resilience`: municipality-level resilience scoring fact
 - `fact_bankruptcy_risk_hotspots`: municipality-level bankruptcy hotspot fact
 - `fact_bankruptcies_by_industry`: national yearly bankruptcy breakdown by industry
+- `fact_industry_labor_impact_bankruptcies`: municipality-industry labor impact fact
+- `fact_industry_bankruptcy_specialization`: municipality-industry specialization fact
 
 ## Documentation
 
@@ -66,6 +70,7 @@ Additional documentation is organized under `docs/`:
 Start here for the current featured use case:
 
 - `docs/use-cases/bankruptcy-risk-hotspots.md`
+- `docs/use-cases/industry-bankruptcy-specialization.md`
 
 ## Running dbt
 
@@ -98,6 +103,7 @@ This branch is being used to document multiple small business-facing use cases. 
 4. Bankruptcy Trends by Industry
 5. Municipality Overview
 6. Regional Mortality and Population Change
+7. Industry Bankruptcy Specialization
 
 ## Key Modeling Lessons
 

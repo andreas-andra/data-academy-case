@@ -50,8 +50,12 @@ Examples of modeling problems addressed:
 
 - diagram: `docs/diagrams/bankruptcy_risk_hotspots.png`
 - diagram: `docs/diagrams/industry labor impact bankruptcies.png`
+- diagram: `docs/diagrams/industry_bankruptcy_specialization.png`
+- diagram source: `docs/diagrams/industry_bankruptcy_specialization.dbml`
 - use case: `docs/use-cases/bankruptcy-risk-hotspots.md`
+- use case: `docs/use-cases/industry-bankruptcy-specialization.md`
 - star schema: `docs/architecture/star-schema-bankruptcy-hotspots.md`
+- star schema: `docs/architecture/star-schema-industry-bankruptcy-specialization.md`
 - star schema: `docs/architecture/star-schema-industry-labor-impact-bankruptcies.md`
 - top-level project overview: `README.md`
 
@@ -69,6 +73,9 @@ Examples of modeling problems addressed:
 - `fact_industry_labor_impact_bankruptcies`
   - grain: `year x municipality x industry`
   - purpose: identify where bankruptcies affect the largest number of employees and support both within-year ranking and cross-year trend analysis
+- `fact_industry_bankruptcy_specialization`
+  - grain: `year x municipality x industry`
+  - purpose: identify industries that are overrepresented in municipal bankruptcies relative to the national industry bankruptcy structure; implemented as a stricter textbook star with shared dimensions only
 
 ## Industry Labor Impact Model In Context
 
@@ -82,3 +89,26 @@ It sits below municipality-level models in grain and is designed for:
 - classification of labor impact severity
 
 Because it is at `year x municipality x industry` grain, it should not be joined directly to municipality-level facts for reporting without first aggregating to a common grain.
+
+## Industry Bankruptcy Specialization Model In Context
+
+`fact_industry_bankruptcy_specialization` is another detailed gold fact at `year x municipality x industry` grain.
+
+It is designed for:
+
+- identifying industries that are overrepresented in local bankruptcies relative to the national pattern
+- municipality-industry drilldowns into concentrated bankruptcy structure
+- cross-year trend analysis of specialization severity
+- separating statistically stronger signals from low-volume extreme ratios
+
+The implemented model follows a stricter textbook star shape:
+
+- the fact stores foreign keys and measures only
+- municipality, industry, and year labels come from shared dimensions
+
+Because it is at `year x municipality x industry` grain, it should not be joined directly to municipality-level facts for reporting without first aggregating to a common grain.
+
+Dashboard users should also distinguish between:
+
+- supported-only analysis using `specialization_support_class = 'Supported signal'`
+- explicit exception views that intentionally include low-support rows, such as support breakdowns or enterprise-vs-employee comparison plots

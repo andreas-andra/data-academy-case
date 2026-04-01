@@ -190,3 +190,78 @@ models:
         description: "Severe / High / Moderate / Low — relative rank within year via ntile(4). Always ~25% per band per year. Use for 'who has highest labor impact this year' comparisons."
       - name: labor_impact_absolute_class
         description: "No labor impact / Low / Moderate / High / Severe — zero-impact rows are split into a separate class, while positive rows are assigned to fixed dataset-wide global quartile bands using percent_rank across all years combined. Use this for trend analysis."
+
+  - name: fact_industry_bankruptcy_specialization
+    description: >
+      Industry bankruptcy specialization model. Grain: year × municipality × industry.
+      Identifies which industries are disproportionately overrepresented in a municipality's
+      bankruptcy profile relative to the national industry structure in the same year using
+      a location-quotient style specialization metric. This fact follows a textbook star-schema
+      shape: it exposes only foreign keys and measures, while descriptive names live in the
+      dimension tables.
+      The primary specialization metric is enterprise-based because the use case asks where
+      industries are overrepresented in bankruptcy incidence. An employee-based companion LQ is
+      also included to show whether the same pattern holds when measured by affected employees.
+      NOTE: specialization metrics are not meaningful when bankruptcies_enterprises is 0.
+      Those rows are assigned to a separate No bankruptcies class and excluded from relative
+      year-by-year ntile ranking.
+      NOTE: yoy_bankruptcy_specialization_lq_pct is NULL for the first year a municipality-industry
+      pair appears, and also NULL whenever a combination is missing in the prior year.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id, industry_id]
+    columns:
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests: [not_null]
+      - name: municipality_id
+        description: "Foreign key to dim_municipality."
+        tests: [not_null]
+      - name: industry_id
+        description: "Foreign key to dim_industry."
+        tests: [not_null]
+      - name: bankruptcies_enterprises
+        description: "Bankrupt enterprise count for the municipality-industry-year combination."
+        tests: [not_null]
+      - name: bankruptcies_employees
+        description: "Employees affected by bankruptcies for the municipality-industry-year combination."
+        tests: [not_null]
+      - name: municipality_total_bankruptcies_enterprises
+        description: "Total bankrupt enterprises across all industries in the municipality-year."
+      - name: national_industry_bankruptcies_enterprises
+        description: "National bankrupt enterprise count for the industry in the same year."
+      - name: national_total_bankruptcies_enterprises
+        description: "National bankrupt enterprise count across all industries in the same year."
+      - name: municipality_total_bankruptcies_employees
+        description: "Total employees affected by bankruptcies across all industries in the municipality-year."
+      - name: national_industry_bankruptcies_employees
+        description: "National employees affected by bankruptcies for the industry in the same year."
+      - name: national_total_bankruptcies_employees
+        description: "National employees affected by bankruptcies across all industries in the same year."
+      - name: municipality_industry_bankruptcy_share_pct
+        description: "This industry's share of all bankrupt enterprises in the municipality-year."
+      - name: national_industry_bankruptcy_share_pct
+        description: "This industry's share of all bankrupt enterprises nationally in the same year."
+      - name: municipality_industry_bankrupt_employees_share_pct
+        description: "This industry's share of all bankrupt employees in the municipality-year."
+      - name: national_industry_bankrupt_employees_share_pct
+        description: "This industry's share of all bankrupt employees nationally in the same year."
+      - name: bankruptcy_specialization_lq
+        description: "Location quotient comparing the municipality's bankruptcy industry share with the national bankruptcy industry share. Values above 1 indicate overrepresentation."
+      - name: bankruptcy_employee_specialization_lq
+        description: "Employee-based location quotient comparing the municipality's share of bankrupt employees in the industry with the national share of bankrupt employees in the same industry and year."
+      - name: specialization_gap_pct_points
+        description: "Difference between the municipality industry bankruptcy share and the national industry bankruptcy share, in percentage points."
+      - name: yoy_bankruptcy_specialization_lq_pct
+        description: "Year-over-year percent change in bankruptcy_specialization_lq. NULL for first or non-consecutive years."
+      - name: rolling_3y_avg_specialization_lq
+        description: "Three-year rolling average of bankruptcy_specialization_lq for the municipality-industry series."
+      - name: specialization_ntile
+        description: "Raw ntile value (1=highest specialization, 4=lowest) among positive-bankruptcy rows within each year. NULL when bankruptcies_enterprises is 0."
+      - name: specialization_support_class
+        description: "Business interpretation support flag: No bankruptcies, Single bankruptcy signal, Thin municipality bankruptcy base, or Supported signal. Use this to avoid overinterpreting very small local counts."
+      - name: specialization_class
+        description: "Very high / High / Moderate / Low specialization among positive-bankruptcy rows within each year, plus No bankruptcies for rows with zero bankruptcies."
+      - name: specialization_absolute_class
+        description: "No bankruptcies / Low / Moderate / High / Very high specialization using fixed dataset-wide percent_rank bands across positive-bankruptcy rows only. Use this for cross-year trend analysis."
