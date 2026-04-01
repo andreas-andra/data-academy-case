@@ -18,11 +18,10 @@ bankruptcies_agg as (
     select
         year,
         municipality,
-        sum(bankruptcies_enterprises)   as total_bankruptcies_enterprises,
-        sum(bankruptcies_employees)     as total_bankruptcies_employees
+        bankruptcies_enterprises   as total_bankruptcies_enterprises,
+        bankruptcies_employees     as total_bankruptcies_employees
     from bankruptcies
     where industry = 'Total'
-    group by year, municipality
 ),
 
 joined as (

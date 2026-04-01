@@ -11,14 +11,14 @@ dim_y as (select * from {{ ref('dim_year') }}),
 yearly_totals as (
     select
         year,
-        sum(case when industry = 'Total' then bankruptcies_enterprises else 0 end)  as total_bankruptcies_enterprises,
-        sum(case when industry = 'Total' then bankruptcies_employees else 0 end)    as total_bankruptcies_employees,
-        max(total_establishments)                                                    as total_establishments,
-        max(total_personnel_staff_years)                                             as total_personnel_staff_years,
-        max(total_population)                                                        as total_population,
-        max(total_deaths)                                                            as total_deaths
+        bankruptcies_enterprises  as total_bankruptcies_enterprises,
+        bankruptcies_employees    as total_bankruptcies_employees,
+        total_establishments,
+        total_personnel_staff_years,
+        total_population,
+        total_deaths
     from national
-    group by year
+    where industry = 'Total'
 ),
 
 -- Year-over-year changes
