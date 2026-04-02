@@ -49,7 +49,7 @@ This avoids unstable surrogate keys during rebuilds and makes the data model eas
 
 - `fact_finland_economic_health`: national yearly economic health metrics
 - `fact_bankruptcies`: municipality- and industry-level bankruptcy fact
-- `fact_population`: municipality-level population and establishment fact
+- `fact_population`: municipality-level population, deaths, and business-base fact
 - `fact_municipality_overview`: municipality-level combined overview fact
 - `fact_regional_mortality`: municipality-level mortality trend fact
 - `fact_municipality_resilience`: municipality-level resilience scoring fact
@@ -64,8 +64,8 @@ Additional documentation is organized under `docs/`:
 
 - `docs/use-cases/`: business use-case documentation
 - `docs/architecture/`: warehouse and modeling documentation
-- `docs/diagrams/`: visual diagrams used in presentations
-- `docs/presentation-outline.md`: suggested slide flow for presenting the case
+- `docs/diagrams/`: DBML sources and rendered diagrams used in presentations
+- `docs/genie-dashboards/`: dashboard-specific guidance and prompt assets
 
 Start here for the current featured use case:
 
@@ -109,7 +109,8 @@ This branch is being used to document multiple small business-facing use cases. 
 4. Bankruptcy Trends by Industry
 5. Municipality Overview
 6. Regional Mortality and Population Change
-7. Industry Bankruptcy Specialization
+7. Industry Labor Impact Bankruptcies
+8. Industry Bankruptcy Specialization
 
 Foundational supporting facts such as `fact_bankruptcies` and `fact_population` are documented in the architecture layer rather than as standalone business use cases.
 

@@ -48,10 +48,12 @@ Examples of modeling problems addressed:
 
 ## Current Documentation Assets
 
-- rendered diagrams currently exist for hotspot, labor-impact, and specialization use cases
+- DBML diagram sources in `docs/diagrams/` are the authoritative schema documentation
+- rendered SVG and PNG diagrams exist for every DBML-backed gold fact model
 - DBML diagram sources live in `docs/diagrams/`
 - fact-level star-schema notes live in `docs/architecture/`
 - business-facing use-case docs live in `docs/use-cases/`
+- dashboard-specific guidance lives in `docs/genie-dashboards/`
 - top-level project overview lives in `README.md`
 
 ## Gold Models By Use Case
