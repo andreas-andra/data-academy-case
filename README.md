@@ -57,6 +57,7 @@ This avoids unstable surrogate keys during rebuilds and makes the data model eas
 - `fact_bankruptcies_by_industry`: national yearly bankruptcy breakdown by industry
 - `fact_industry_labor_impact_bankruptcies`: municipality-industry labor impact fact
 - `fact_industry_bankruptcy_specialization`: municipality-industry specialization fact
+- `fact_municipality_business_dynamics`: municipality-level business dynamics with YoY changes and density classifications
 
 ## Documentation
 

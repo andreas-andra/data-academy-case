@@ -1,0 +1,1128 @@
+{
+  "datasets": [
+    {
+      "name": "latest_year_all",
+      "displayName": "All Municipalities (Latest Year)",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT\n",
+        "    f.year,\n",
+        "    f.municipality_id,\n",
+        "    m.municipality_name,\n",
+        "    f.population,\n",
+        "    f.establishments_count,\n",
+        "    f.personnel_staff_years,\n",
+        "    CASE\n",
+        "      WHEN f.population > 0 THEN f.establishments_count * 1000.0 / f.population\n",
+        "    END AS establishments_per_1000_population,\n",
+        "    LAG(f.establishments_count) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_est,\n",
+        "    LAG(f.population) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_pop,\n",
+        "    LAG(f.personnel_staff_years) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_pers\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "      JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "        ON f.municipality_id = m.municipality_id\n",
+        "),\n",
+        "computed AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_est IS NOT NULL\n",
+        "        AND prev_est > 0\n",
+        "      THEN\n",
+        "        (establishments_count - prev_est) * 100.0 / prev_est\n",
+        "    END AS establishments_yoy_pct,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_pop IS NOT NULL\n",
+        "        AND prev_pop > 0\n",
+        "      THEN\n",
+        "        (population - prev_pop) * 100.0 / prev_pop\n",
+        "    END AS population_yoy_pct,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_pers IS NOT NULL\n",
+        "        AND prev_pers > 0\n",
+        "      THEN\n",
+        "        (personnel_staff_years - prev_pers) * 100.0 / prev_pers\n",
+        "    END AS personnel_yoy_pct\n",
+        "  FROM\n",
+        "    base\n",
+        ")\n",
+        "SELECT\n",
+        "  year,\n",
+        "  municipality_name,\n",
+        "  population,\n",
+        "  establishments_count,\n",
+        "  personnel_staff_years,\n",
+        "  establishments_per_1000_population,\n",
+        "  establishments_yoy_pct,\n",
+        "  population_yoy_pct,\n",
+        "  personnel_yoy_pct\n",
+        "FROM\n",
+        "  computed\n",
+        "WHERE\n",
+        "  year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )"
+      ]
+    },
+    {
+      "name": "kpi_top_decline",
+      "displayName": "Strongest Decline Municipality",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT\n",
+        "    f.year,\n",
+        "    f.municipality_id,\n",
+        "    m.municipality_name,\n",
+        "    f.establishments_count,\n",
+        "    LAG(f.establishments_count) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_est\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "      JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "        ON f.municipality_id = m.municipality_id\n",
+        "),\n",
+        "computed AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_est IS NOT NULL\n",
+        "        AND prev_est > 0\n",
+        "      THEN\n",
+        "        (establishments_count - prev_est) * 100.0 / prev_est\n",
+        "    END AS establishments_yoy_pct\n",
+        "  FROM\n",
+        "    base\n",
+        ")\n",
+        "SELECT\n",
+        "  municipality_name,\n",
+        "  establishments_yoy_pct\n",
+        "FROM\n",
+        "  computed\n",
+        "WHERE\n",
+        "  year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "  AND establishments_yoy_pct IS NOT NULL\n",
+        "ORDER BY\n",
+        "  establishments_yoy_pct ASC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "top20_density",
+      "displayName": "Top 20 by Establishment Density",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.establishments_count * 1000.0 / NULLIF(f.population, 0) AS establishments_per_1000_population\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "  AND f.population > 0\n",
+        "ORDER BY\n",
+        "  establishments_per_1000_population DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "kpi_top_growth",
+      "displayName": "Strongest Growth Municipality",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT\n",
+        "    f.year,\n",
+        "    f.municipality_id,\n",
+        "    m.municipality_name,\n",
+        "    f.establishments_count,\n",
+        "    LAG(f.establishments_count) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_est\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "      JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "        ON f.municipality_id = m.municipality_id\n",
+        "),\n",
+        "computed AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_est IS NOT NULL\n",
+        "        AND prev_est > 0\n",
+        "      THEN\n",
+        "        (establishments_count - prev_est) * 100.0 / prev_est\n",
+        "    END AS establishments_yoy_pct\n",
+        "  FROM\n",
+        "    base\n",
+        ")\n",
+        "SELECT\n",
+        "  municipality_name,\n",
+        "  establishments_yoy_pct\n",
+        "FROM\n",
+        "  computed\n",
+        "WHERE\n",
+        "  year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "  AND establishments_yoy_pct IS NOT NULL\n",
+        "ORDER BY\n",
+        "  establishments_yoy_pct DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "top20_growth",
+      "displayName": "Top 20 by Establishment Growth",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT\n",
+        "    f.year,\n",
+        "    f.municipality_id,\n",
+        "    m.municipality_name,\n",
+        "    f.establishments_count,\n",
+        "    LAG(f.establishments_count) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_est\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "      JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "        ON f.municipality_id = m.municipality_id\n",
+        "),\n",
+        "computed AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_est IS NOT NULL\n",
+        "        AND prev_est > 0\n",
+        "      THEN\n",
+        "        (establishments_count - prev_est) * 100.0 / prev_est\n",
+        "    END AS establishments_yoy_pct\n",
+        "  FROM\n",
+        "    base\n",
+        ")\n",
+        "SELECT\n",
+        "  municipality_name,\n",
+        "  establishments_yoy_pct\n",
+        "FROM\n",
+        "  computed\n",
+        "WHERE\n",
+        "  year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "  AND establishments_yoy_pct IS NOT NULL\n",
+        "ORDER BY\n",
+        "  establishments_yoy_pct DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "top5_rolling_trend",
+      "displayName": "Top 5 Rolling Growth Trend",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT\n",
+        "    f.year,\n",
+        "    f.municipality_id,\n",
+        "    m.municipality_name,\n",
+        "    f.establishments_count,\n",
+        "    LAG(f.establishments_count) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_est\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "      JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "        ON f.municipality_id = m.municipality_id\n",
+        "),\n",
+        "with_yoy AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_est IS NOT NULL\n",
+        "        AND prev_est > 0\n",
+        "      THEN\n",
+        "        (establishments_count - prev_est) * 100.0 / prev_est\n",
+        "    END AS establishments_yoy_pct\n",
+        "  FROM\n",
+        "    base\n",
+        "),\n",
+        "with_rolling AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    AVG(establishments_yoy_pct) OVER (\n",
+        "        PARTITION BY municipality_id\n",
+        "        ORDER BY year\n",
+        "        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\n",
+        "      ) AS rolling_3y_avg_growth_pct,\n",
+        "    COUNT(establishments_yoy_pct) OVER (\n",
+        "        PARTITION BY municipality_id\n",
+        "        ORDER BY year\n",
+        "        ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\n",
+        "      ) AS window_count\n",
+        "  FROM\n",
+        "    with_yoy\n",
+        "),\n",
+        "top5 AS (\n",
+        "  SELECT\n",
+        "    municipality_id\n",
+        "  FROM\n",
+        "    with_rolling\n",
+        "  WHERE\n",
+        "    year\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(year)\n",
+        "        FROM\n",
+        "          data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "      )\n",
+        "    AND window_count >= 3\n",
+        "  ORDER BY\n",
+        "    rolling_3y_avg_growth_pct DESC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  r.year,\n",
+        "  r.municipality_name,\n",
+        "  r.rolling_3y_avg_growth_pct\n",
+        "FROM\n",
+        "  with_rolling r\n",
+        "WHERE\n",
+        "  r.municipality_id IN (\n",
+        "    SELECT\n",
+        "      municipality_id\n",
+        "    FROM\n",
+        "      top5\n",
+        "  )\n",
+        "  AND r.window_count >= 3\n",
+        "ORDER BY\n",
+        "  r.year,\n",
+        "  r.rolling_3y_avg_growth_pct DESC"
+      ]
+    },
+    {
+      "name": "density_class_dist",
+      "displayName": "Business Density Class Distribution",
+      "queryLines": [
+        "WITH density AS (\n",
+        "  SELECT\n",
+        "    f.year,\n",
+        "    f.municipality_id,\n",
+        "    CASE\n",
+        "      WHEN f.population > 0 THEN f.establishments_count * 1000.0 / f.population\n",
+        "    END AS est_per_1000\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "),\n",
+        "classified AS (\n",
+        "  SELECT\n",
+        "    year,\n",
+        "    municipality_id,\n",
+        "    est_per_1000,\n",
+        "    NTILE(4) OVER (PARTITION BY year ORDER BY est_per_1000) AS density_quartile\n",
+        "  FROM\n",
+        "    density\n",
+        "  WHERE\n",
+        "    est_per_1000 IS NOT NULL\n",
+        ")\n",
+        "SELECT\n",
+        "  year,\n",
+        "  CASE density_quartile\n",
+        "    WHEN 4 THEN 'High density'\n",
+        "    WHEN 3 THEN 'Above average density'\n",
+        "    WHEN 2 THEN 'Below average density'\n",
+        "    WHEN 1 THEN 'Low density'\n",
+        "  END AS business_density_class,\n",
+        "  COUNT(*) AS municipality_count\n",
+        "FROM\n",
+        "  classified\n",
+        "GROUP BY\n",
+        "  year,\n",
+        "  density_quartile\n",
+        "ORDER BY\n",
+        "  year,\n",
+        "  density_quartile DESC"
+      ]
+    },
+    {
+      "name": "bottom20_growth",
+      "displayName": "Bottom 20 by Establishment Growth",
+      "queryLines": [
+        "WITH base AS (\n",
+        "  SELECT\n",
+        "    f.year,\n",
+        "    f.municipality_id,\n",
+        "    m.municipality_name,\n",
+        "    f.establishments_count,\n",
+        "    LAG(f.establishments_count) OVER (PARTITION BY f.municipality_id ORDER BY f.year) AS prev_est\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "      JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "        ON f.municipality_id = m.municipality_id\n",
+        "),\n",
+        "computed AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    CASE\n",
+        "      WHEN\n",
+        "        prev_est IS NOT NULL\n",
+        "        AND prev_est > 0\n",
+        "      THEN\n",
+        "        (establishments_count - prev_est) * 100.0 / prev_est\n",
+        "    END AS establishments_yoy_pct\n",
+        "  FROM\n",
+        "    base\n",
+        ")\n",
+        "SELECT\n",
+        "  municipality_name,\n",
+        "  establishments_yoy_pct\n",
+        "FROM\n",
+        "  computed\n",
+        "WHERE\n",
+        "  year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "  AND establishments_yoy_pct IS NOT NULL\n",
+        "ORDER BY\n",
+        "  establishments_yoy_pct ASC\n",
+        "LIMIT 20"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "b96ad70b",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Municipality Business Dynamics — Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_growth",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_top_growth",
+                  "fields": [
+                    {
+                      "name": "max(establishments_yoy_pct)",
+                      "expression": "MAX(`establishments_yoy_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Strongest Growth — Sottunga",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(establishments_yoy_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Establishment Growth %"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_decline",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_top_decline",
+                  "fields": [
+                    {
+                      "name": "min(establishments_yoy_pct)",
+                      "expression": "MIN(`establishments_yoy_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Strongest Decline — Merijärvi",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "min(establishments_yoy_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Establishment Growth %"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_avg_density",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "avg(establishments_per_1000_population)",
+                      "expression": "AVG(`establishments_per_1000_population`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Avg Establishments per 1,000 Pop",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(establishments_per_1000_population)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg Density"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_positive_growth",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "count(municipality_name)",
+                      "expression": "COUNT(`municipality_name`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`establishments_yoy_pct` > 0"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Municipalities with Positive Growth",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(municipality_name)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_density",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_density",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(establishments_per_1000_population)",
+                      "expression": "SUM(`establishments_per_1000_population`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 by Establishment Density (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(establishments_per_1000_population)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Establishments per 1,000 Pop",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_growth",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_growth",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(establishments_yoy_pct)",
+                      "expression": "SUM(`establishments_yoy_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 by Establishment Growth % (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(establishments_yoy_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Establishment Growth %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_bottom20_growth",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bottom20_growth",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(establishments_yoy_pct)",
+                      "expression": "SUM(`establishments_yoy_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bottom 20 by Establishment Growth % (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(establishments_yoy_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Establishment Growth %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "establishments_yoy_pct",
+                      "expression": "`establishments_yoy_pct`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "population_yoy_pct",
+                      "expression": "`population_yoy_pct`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`establishments_yoy_pct` IS NOT NULL"
+                    },
+                    {
+                      "expression": "`population_yoy_pct` IS NOT NULL"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Establishment Growth vs Population Growth (2024)",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "population_yoy_pct",
+                  "displayName": "Population Growth %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "establishments_yoy_pct",
+                  "displayName": "Establishment Growth %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "establishments_yoy_pct",
+                  "displayName": "Establishment Growth %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_rolling_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top5_rolling_trend",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "sum(rolling_3y_avg_growth_pct)",
+                      "expression": "SUM(`rolling_3y_avg_growth_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Rolling 3Y Avg Establishment Growth — Top 5",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(rolling_3y_avg_growth_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Rolling 3Y Avg Growth %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_density_class",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "density_class_dist",
+                  "fields": [
+                    {
+                      "name": "business_density_class",
+                      "expression": "`business_density_class`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "sum(municipality_count)",
+                      "expression": "SUM(`municipality_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Business Density Class Distribution by Year",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(municipality_count)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Municipality Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "business_density_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Density Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "High density",
+                        "color": "#2E7D32"
+                      },
+                      {
+                        "value": "Above average density",
+                        "color": "#42A5F5"
+                      },
+                      {
+                        "value": "Below average density",
+                        "color": "#FFA726"
+                      },
+                      {
+                        "value": "Low density",
+                        "color": "#E53935"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
