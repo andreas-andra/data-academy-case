@@ -31,7 +31,7 @@ Measures in the fact include:
 
 ## Modeling Note
 
-This is the base bankruptcy detail fact for the warehouse. It preserves the source's full industry coverage, including rows such as `Total` and `Industry unknown`.
+This is the base bankruptcy detail fact for the warehouse. It includes only classified industry rows — `Total` and `Industry unknown` are excluded to prevent double-counting. Models that need municipality-level totals source the pre-aggregated `Total` row directly from silver.
 
 ## Diagram
 
@@ -41,5 +41,5 @@ Source: [`docs/diagrams/bankruptcies.dbml`](../diagrams/bankruptcies.dbml) — S
 
 ## Notes
 
-- downstream use cases should filter aggregate industry rows when they need a clean industry grain
+- `Total` and `Industry unknown` rows are excluded to prevent double-counting
 - this is the reusable detailed bankruptcy fact that several derived facts build on

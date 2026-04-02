@@ -38,19 +38,18 @@ This use case provides the reusable bankruptcy detail layer for:
 
 ## Key Modeling Decisions
 
-### Full source industry coverage
+### Classified industries only
 
-This fact preserves the source's full industry coverage, including `Total` and `Industry unknown` rows.
+This fact excludes `Total` and `Industry unknown` rows to prevent double-counting. Only classified industry detail rows are included. Other models that need municipality totals (e.g. `fact_municipality_overview`, `fact_bankruptcy_risk_hotspots`) source the pre-aggregated `Total` row directly from silver.
 
 ### Reusable base bankruptcy fact
 
-This is the detailed bankruptcy base fact that supports municipality totals, industry breakdowns, and downstream derived facts.
+This is the detailed bankruptcy base fact that supports industry breakdowns and downstream derived facts.
 
 ## Known Caveats
 
-- never aggregate detail industry rows together with `Total` rows in the same calculation because that will double-count bankruptcies
-- use `dim_industry.industry_name = 'Total'` for municipality totals
-- use `dim_industry.industry_name NOT IN ('Total', 'Industry unknown')` for clean industry analysis
+- `Total` and `Industry unknown` rows are excluded — use `fact_municipality_overview` or `fact_bankruptcy_risk_hotspots` for municipality-level totals
+- to get national totals, sum across all rows for a given year
 
 ## Recommended Dashboard Views
 

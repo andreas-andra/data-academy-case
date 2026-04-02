@@ -54,8 +54,8 @@ top_bankruptcy_industry as (
 base as (
 
     select
-        e.year,
-        e.municipality,
+        p.year,
+        p.municipality,
         e.establishments_count,
         e.personnel_staff_years,
         p.population,
@@ -89,16 +89,16 @@ base as (
             2
         ) as bankruptcies_per_10000_population
 
-    from {{ ref('silver_statfin_enterprise_establishments') }} e
-    left join {{ ref('silver_statfin_population') }} p
-        on e.year = p.year
-       and e.municipality = p.municipality
+    from {{ ref('silver_statfin_population') }} p
+    left join {{ ref('silver_statfin_enterprise_establishments') }} e
+        on p.year = e.year
+       and p.municipality = e.municipality
     left join bankruptcy_totals b
-        on e.year = b.year
-       and e.municipality = b.municipality
+        on p.year = b.year
+       and p.municipality = b.municipality
     left join top_bankruptcy_industry t
-        on e.year = t.year
-       and e.municipality = t.municipality
+        on p.year = t.year
+       and p.municipality = t.municipality
 
 ),
 
