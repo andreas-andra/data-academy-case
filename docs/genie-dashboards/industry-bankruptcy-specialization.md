@@ -148,6 +148,24 @@ Interpretation:
 
 ---
 
+## Genie Prompts
+
+"Using fact_industry_bankruptcy_specialization joined to dim_municipality, dim_industry, and dim_year, show the top 20 municipality-industry combinations by bankruptcy_specialization_lq for year = 2024 as a bar chart. Filter where specialization_support_class = 'Supported signal' and bankruptcy_specialization_lq > 1. Sort descending by bankruptcy_specialization_lq. Use municipality_name and industry_name as labels."
+
+"Using fact_industry_bankruptcy_specialization joined to dim_year, show the count of rows by specialization_absolute_class and year as a stacked bar chart. Filter where specialization_support_class = 'Supported signal'. Use categories: Low specialization, Moderate specialization, High specialization, Very high specialization."
+
+"Using fact_industry_bankruptcy_specialization joined to dim_municipality, dim_industry, and dim_year, show bankruptcy_specialization_lq by municipality_name and industry_name for year = 2024 as a heatmap. Filter where specialization_support_class = 'Supported signal' and bankruptcy_specialization_lq > 1."
+
+"Using fact_industry_bankruptcy_specialization joined to dim_industry and dim_year, count how many rows have bankruptcy_specialization_lq > 1 and specialization_support_class = 'Supported signal', grouped by industry_name, across all years. Show as a descending bar chart."
+
+"Using fact_industry_bankruptcy_specialization joined to dim_municipality, dim_industry, and dim_year, show bankruptcy_specialization_lq vs bankruptcy_employee_specialization_lq for year = 2024 as a scatter plot. Filter where bankruptcy_specialization_lq > 1 and specialization_support_class IN ('Supported signal', 'Thin municipality bankruptcy base'). Label outlier points with municipality_name and industry_name."
+
+"Using fact_industry_bankruptcy_specialization joined to dim_year, show the count of rows by specialization_support_class across all years as a grouped bar chart. Include all support classes."
+
+"Using fact_industry_bankruptcy_specialization joined to dim_municipality, dim_industry, and dim_year, how many municipality-industry combinations have bankruptcy_specialization_lq > 1 and specialization_support_class = 'Supported signal' in year = 2024?"
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_industry_bankruptcy_specialization`

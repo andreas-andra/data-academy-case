@@ -83,6 +83,24 @@ Count rows where `year_id = latest year` and `population_change_pct > 0`.
 
 ---
 
+## Genie Prompts
+
+"Using fact_regional_mortality joined to dim_municipality and dim_year, show the top 20 municipalities by death_rate_per_1000 for year = 2024 as a descending bar chart. Filter where population > 0."
+
+"Using fact_regional_mortality joined to dim_municipality and dim_year, show the 20 municipalities with the most negative population_change_pct for year = 2024 as a bar chart sorted ascending. Filter where population_change_pct IS NOT NULL."
+
+"Using fact_regional_mortality joined to dim_municipality and dim_year, show the top 20 municipalities by population_change_pct for year = 2024 as a descending bar chart. Filter where population_change_pct > 0."
+
+"Using fact_regional_mortality joined to dim_municipality and dim_year, show population_change_pct vs death_rate_per_1000 for year = 2024 as a scatter plot. Filter where population_change_pct IS NOT NULL and population > 0. Label outliers with municipality_name."
+
+"Using fact_regional_mortality joined to dim_municipality and dim_year, show death_rate_per_1000 over time for the 5 municipalities with the highest death_rate_per_1000 in year = 2024 as a multi-line chart."
+
+"Using fact_regional_mortality joined to dim_municipality and dim_year, show population_change_pct over time for the 5 municipalities with the most negative population_change_pct in year = 2024 as a multi-line chart. Filter where population_change_pct IS NOT NULL."
+
+"Using fact_regional_mortality joined to dim_year, show total deaths nationally by year as a bar chart. Sum deaths across all municipalities."
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_regional_mortality`

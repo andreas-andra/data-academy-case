@@ -74,6 +74,24 @@ Sum `population` where `year_id = latest year`.
 
 ---
 
+## Genie Prompts
+
+"Using fact_municipality_overview joined to dim_municipality and dim_year, show the top 20 municipalities by bankruptcies_per_1000_establishments for year = 2024 as a descending bar chart. Filter where establishments_count > 0."
+
+"Using fact_municipality_overview joined to dim_municipality and dim_year, show the top 20 municipalities by bankruptcies_per_100k_population for year = 2024 as a descending bar chart. Filter where population > 0."
+
+"Using fact_municipality_overview joined to dim_municipality and dim_year, show population vs bankruptcies_per_1000_establishments for year = 2024 as a scatter plot. Filter where establishments_count > 0. Label notable outliers with municipality_name."
+
+"Using fact_municipality_overview joined to dim_municipality and dim_year, show the top 20 municipalities by death_rate_per_1000 for year = 2024 as a descending bar chart."
+
+"Using fact_municipality_overview joined to dim_municipality and dim_year, show all municipalities for year = 2024 in a table sorted by bankruptcies_per_1000_establishments descending. Include columns municipality_name, population, establishments_count, total_bankruptcies_enterprises, bankruptcies_per_1000_establishments, bankruptcies_per_100k_population."
+
+"Using fact_municipality_overview joined to dim_municipality and dim_year, show bankruptcies_per_1000_establishments over time for Helsinki, Tampere, Turku, Oulu, and Jyväskylä as a multi-line chart."
+
+"Using fact_municipality_overview joined to dim_year, show total total_bankruptcies_enterprises nationally by year as a line chart. Sum total_bankruptcies_enterprises across all municipalities."
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_municipality_overview`

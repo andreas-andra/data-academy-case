@@ -72,6 +72,26 @@ Compare `bankruptcy_growth_pct` and `establishment_growth_pct` for `year_id = la
 
 ---
 
+## Genie Prompts
+
+"Using fact_finland_economic_health joined to dim_year, show total_bankruptcies_enterprises and total_establishments by year as a dual-axis line chart."
+
+"Using fact_finland_economic_health joined to dim_year, show bankruptcy_growth_pct and establishment_growth_pct by year as grouped bars. Exclude rows where bankruptcy_growth_pct IS NULL."
+
+"Using fact_finland_economic_health joined to dim_year, show death_rate_per_1000 by year as a line chart."
+
+"Using fact_finland_economic_health joined to dim_year, show total_population and total_deaths by year as a dual-axis line chart."
+
+"Using fact_finland_economic_health joined to dim_year, show new_establishments_yoy by year as a bar chart. Exclude rows where new_establishments_yoy IS NULL."
+
+"Using fact_finland_economic_health joined to dim_year, show total_personnel_staff_years by year as a line chart."
+
+"Using fact_finland_economic_health joined to dim_year, show total_bankruptcies_enterprises and total_bankruptcies_employees by year as a grouped bar chart."
+
+"Using fact_finland_economic_health joined to dim_year, which year had the highest total_bankruptcies_enterprises? Show all years ranked by total_bankruptcies_enterprises descending."
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_finland_economic_health`

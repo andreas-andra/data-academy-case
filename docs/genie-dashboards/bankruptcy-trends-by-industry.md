@@ -80,6 +80,24 @@ Count distinct `industry_id` where `year_id = latest year`.
 
 ---
 
+## Genie Prompts
+
+"Using fact_bankruptcies_by_industry joined to dim_industry and dim_year, show bankruptcies_enterprises by industry_name for year = 2024 as a descending bar chart."
+
+"Using fact_bankruptcies_by_industry joined to dim_industry and dim_year, show bankruptcies_employees by industry_name for year = 2024 as a descending bar chart."
+
+"Using fact_bankruptcies_by_industry joined to dim_industry and dim_year, show share_of_total_pct by year for the top 5 industries as a multi-line chart. Identify top 5 industries by total bankruptcies_enterprises across all years. Group by year and industry_name."
+
+"Using fact_bankruptcies_by_industry joined to dim_industry and dim_year, show bankruptcies_enterprises by industry_name and year as a stacked bar chart. Show all years."
+
+"Using fact_bankruptcies_by_industry joined to dim_industry and dim_year, show bankruptcies_enterprises over time for the top 5 industries as a multi-line chart. Identify top 5 industries by total bankruptcies_enterprises across all years. Group by year and industry_name."
+
+"Using fact_bankruptcies_by_industry joined to dim_industry and dim_year, show bankruptcies_enterprises vs bankruptcies_employees for year = 2024 as a scatter plot. Label each point with industry_name."
+
+"Using fact_bankruptcies_by_industry joined to dim_industry and dim_year, which industry had the highest share_of_total_pct in year = 2024? Show all industries ranked by share_of_total_pct descending."
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_bankruptcies_by_industry`
