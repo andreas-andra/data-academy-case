@@ -1,0 +1,872 @@
+{
+  "datasets": [
+    {
+      "name": "latest_year_all",
+      "displayName": "Latest Year — All Municipalities",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`population`,\n",
+        "  f.`deaths`,\n",
+        "  f.`death_rate_per_1000`,\n",
+        "  f.`establishments_count`,\n",
+        "  f.`personnel_staff_years`,\n",
+        "  f.`total_bankruptcies_enterprises`,\n",
+        "  f.`total_bankruptcies_employees`,\n",
+        "  f.`bankruptcies_per_1000_establishments`,\n",
+        "  f.`bankruptcies_per_100k_population`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview`\n",
+        "    )"
+      ]
+    },
+    {
+      "name": "top20_pressure",
+      "displayName": "Top 20 — Bankruptcy Pressure",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`bankruptcies_per_1000_establishments`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview`\n",
+        "    )\n",
+        "  AND f.`establishments_count` > 0\n",
+        "ORDER BY\n",
+        "  f.`bankruptcies_per_1000_establishments` DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "top20_pop_rate",
+      "displayName": "Top 20 — Population Bankruptcy Rate",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`bankruptcies_per_100k_population`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview`\n",
+        "    )\n",
+        "  AND f.`population` > 0\n",
+        "ORDER BY\n",
+        "  f.`bankruptcies_per_100k_population` DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "top20_death_rate",
+      "displayName": "Top 20 — Death Rate",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`death_rate_per_1000`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview`\n",
+        "    )\n",
+        "  AND f.`population` > 0\n",
+        "ORDER BY\n",
+        "  f.`death_rate_per_1000` DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "top5_trend",
+      "displayName": "Top 5 Pressure Trend — All Years",
+      "queryLines": [
+        "WITH top5 AS (\n",
+        "  SELECT\n",
+        "    f.`municipality_id`\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview` f\n",
+        "  WHERE\n",
+        "    f.`year`\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(`year`)\n",
+        "        FROM\n",
+        "          `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview`\n",
+        "      )\n",
+        "    AND f.`establishments_count` > 0\n",
+        "  ORDER BY\n",
+        "    f.`bankruptcies_per_1000_establishments` DESC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  f.`year`,\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`bankruptcies_per_1000_establishments`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_overview` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`municipality_id` IN (\n",
+        "    SELECT\n",
+        "      `municipality_id`\n",
+        "    FROM\n",
+        "      top5\n",
+        "  )\n",
+        "ORDER BY\n",
+        "  f.`year`,\n",
+        "  dm.`municipality_name`"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "a883dc91",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Municipality Overview — Latest Year"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_total_bankruptcies",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "sum(total_bankruptcies_enterprises)",
+                      "expression": "SUM(`total_bankruptcies_enterprises`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "National Total Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_bankruptcies_enterprises)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Bankruptcies"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_avg_pressure",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "avg(bankruptcies_per_1000_establishments)",
+                      "expression": "AVG(`bankruptcies_per_1000_establishments`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "IN_RANGE(`establishments_count`, 1, NULL)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Avg Bankruptcy Pressure (per 1,000)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(bankruptcies_per_1000_establishments)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg Rate"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_highest_pressure",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "max(bankruptcies_per_1000_establishments)",
+                      "expression": "MAX(`bankruptcies_per_1000_establishments`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Highest Bankruptcy Pressure",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(bankruptcies_per_1000_establishments)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Max Rate"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_population",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "sum(population)",
+                      "expression": "SUM(`population`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Population",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(population)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Population"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_pressure",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_pressure",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "bankruptcies_per_1000_establishments",
+                      "expression": "`bankruptcies_per_1000_establishments`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Bankruptcy Pressure",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_per_1000_establishments",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Per 1,000 Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_pop_rate",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_pop_rate",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "bankruptcies_per_100k_population",
+                      "expression": "`bankruptcies_per_100k_population`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Bankruptcies per 100k Population",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_per_100k_population",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Per 100k Population",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "bankruptcies_per_1000_establishments",
+                      "expression": "`bankruptcies_per_1000_establishments`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "population",
+                      "expression": "`population`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "IN_RANGE(`establishments_count`, 1, NULL)"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Population vs Bankruptcy Pressure",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "population",
+                  "displayName": "Population",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_per_1000_establishments",
+                  "displayName": "Bankruptcy Pressure",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "bankruptcies_per_1000_establishments",
+                  "displayName": "Bankruptcy Pressure",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_death",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_death_rate",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "death_rate_per_1000",
+                      "expression": "`death_rate_per_1000`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Death Rate",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "death_rate_per_1000",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Death Rate per 1,000",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "population",
+                      "expression": "`population`"
+                    },
+                    {
+                      "name": "deaths",
+                      "expression": "`deaths`"
+                    },
+                    {
+                      "name": "death_rate_per_1000",
+                      "expression": "`death_rate_per_1000`"
+                    },
+                    {
+                      "name": "establishments_count",
+                      "expression": "`establishments_count`"
+                    },
+                    {
+                      "name": "personnel_staff_years",
+                      "expression": "`personnel_staff_years`"
+                    },
+                    {
+                      "name": "total_bankruptcies_enterprises",
+                      "expression": "`total_bankruptcies_enterprises`"
+                    },
+                    {
+                      "name": "bankruptcies_per_1000_establishments",
+                      "expression": "`bankruptcies_per_1000_establishments`"
+                    },
+                    {
+                      "name": "bankruptcies_per_100k_population",
+                      "expression": "`bankruptcies_per_100k_population`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Full Municipality Profile",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  },
+                  {
+                    "fieldName": "population",
+                    "displayName": "Population"
+                  },
+                  {
+                    "fieldName": "deaths",
+                    "displayName": "Deaths"
+                  },
+                  {
+                    "fieldName": "death_rate_per_1000",
+                    "displayName": "Death Rate ‰10‰"
+                  },
+                  {
+                    "fieldName": "establishments_count",
+                    "displayName": "Establishments"
+                  },
+                  {
+                    "fieldName": "personnel_staff_years",
+                    "displayName": "Personnel"
+                  },
+                  {
+                    "fieldName": "total_bankruptcies_enterprises",
+                    "displayName": "Bankruptcies"
+                  },
+                  {
+                    "fieldName": "bankruptcies_per_1000_establishments",
+                    "displayName": "Per 1,000 Est."
+                  },
+                  {
+                    "fieldName": "bankruptcies_per_100k_population",
+                    "displayName": "Per 100k Pop."
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 10
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top5_trend",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "bankruptcies_per_1000_establishments",
+                      "expression": "`bankruptcies_per_1000_establishments`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bankruptcy Pressure Trend — Top 5 Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_per_1000_establishments",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Per 1,000 Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 28,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

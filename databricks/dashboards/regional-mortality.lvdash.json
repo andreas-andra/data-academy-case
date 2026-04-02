@@ -1,0 +1,924 @@
+{
+  "datasets": [
+    {
+      "name": "bottom20_pop_change",
+      "displayName": "Bottom 20 by Population Change",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.population_change_pct\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "    )\n",
+        "  AND f.population_change_pct IS NOT NULL\n",
+        "ORDER BY\n",
+        "  f.population_change_pct ASC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "top20_death_rate",
+      "displayName": "Top 20 by Death Rate",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.death_rate_per_1000\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "    )\n",
+        "  AND f.population > 0\n",
+        "ORDER BY\n",
+        "  f.death_rate_per_1000 DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "kpi_highest_death",
+      "displayName": "Highest Death Rate Municipality",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.death_rate_per_1000\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "    )\n",
+        "ORDER BY\n",
+        "  f.death_rate_per_1000 DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "latest_year_all",
+      "displayName": "All Municipalities (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  f.year,\n",
+        "  m.municipality_name,\n",
+        "  f.population,\n",
+        "  f.deaths,\n",
+        "  f.population_change_yoy,\n",
+        "  f.population_change_pct,\n",
+        "  f.death_rate_per_1000\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "    )"
+      ]
+    },
+    {
+      "name": "kpi_fastest_decline",
+      "displayName": "Fastest Declining Municipality",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.population_change_pct\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "    )\n",
+        "  AND f.population_change_pct IS NOT NULL\n",
+        "ORDER BY\n",
+        "  f.population_change_pct ASC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "top5_decline_trend",
+      "displayName": "Top 5 Decline Trend",
+      "queryLines": [
+        "WITH top5 AS (\n",
+        "  SELECT\n",
+        "    f.municipality_id\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "  WHERE\n",
+        "    f.year\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(year)\n",
+        "        FROM\n",
+        "          data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "      )\n",
+        "    AND f.population_change_pct IS NOT NULL\n",
+        "  ORDER BY\n",
+        "    f.population_change_pct ASC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  f.year,\n",
+        "  m.municipality_name,\n",
+        "  f.population_change_pct\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.municipality_id IN (\n",
+        "    SELECT\n",
+        "      municipality_id\n",
+        "    FROM\n",
+        "      top5\n",
+        "  )\n",
+        "  AND f.population_change_pct IS NOT NULL\n",
+        "ORDER BY\n",
+        "  f.year,\n",
+        "  f.population_change_pct ASC"
+      ]
+    },
+    {
+      "name": "top5_death_trend",
+      "displayName": "Top 5 Death Rate Trend",
+      "queryLines": [
+        "WITH top5 AS (\n",
+        "  SELECT\n",
+        "    f.municipality_id\n",
+        "  FROM\n",
+        "    data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "  WHERE\n",
+        "    f.year\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(year)\n",
+        "        FROM\n",
+        "          data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "      )\n",
+        "  ORDER BY\n",
+        "    f.death_rate_per_1000 DESC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  f.year,\n",
+        "  m.municipality_name,\n",
+        "  f.death_rate_per_1000\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.municipality_id IN (\n",
+        "    SELECT\n",
+        "      municipality_id\n",
+        "    FROM\n",
+        "      top5\n",
+        "  )\n",
+        "ORDER BY\n",
+        "  f.year,\n",
+        "  f.death_rate_per_1000 DESC"
+      ]
+    },
+    {
+      "name": "top20_pop_growth",
+      "displayName": "Top 20 by Population Growth",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.population_change_pct\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_regional_mortality\n",
+        "    )\n",
+        "  AND f.population_change_pct IS NOT NULL\n",
+        "  AND f.population_change_pct > 0\n",
+        "ORDER BY\n",
+        "  f.population_change_pct DESC\n",
+        "LIMIT 20"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "efa2b526",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Regional Mortality and Population Change — Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_fastest_decline",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_fastest_decline",
+                  "fields": [
+                    {
+                      "name": "min(population_change_pct)",
+                      "expression": "MIN(`population_change_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Fastest Decline — Sottunga",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "min(population_change_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Population Change %"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_highest_death",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_highest_death",
+                  "fields": [
+                    {
+                      "name": "max(death_rate_per_1000)",
+                      "expression": "MAX(`death_rate_per_1000`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Highest Death Rate — Vesanto",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(death_rate_per_1000)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Death Rate per 1,000"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_total_deaths",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "sum(deaths)",
+                      "expression": "SUM(`deaths`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "National Total Deaths (2024)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(deaths)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Total Deaths"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_growth_count",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "count(municipality_name)",
+                      "expression": "COUNT(`municipality_name`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`population_change_pct` > 0"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Municipalities with Growth",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(municipality_name)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_death",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_death_rate",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(death_rate_per_1000)",
+                      "expression": "SUM(`death_rate_per_1000`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Death Rate (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(death_rate_per_1000)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Death Rate per 1,000",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_bottom20_decline",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bottom20_pop_change",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(population_change_pct)",
+                      "expression": "SUM(`population_change_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bottom 20 Municipalities by Population Change % (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(population_change_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Population Change %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_growth",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_pop_growth",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(population_change_pct)",
+                      "expression": "SUM(`population_change_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Population Growth % (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(population_change_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Population Change %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "death_rate_per_1000",
+                      "expression": "`death_rate_per_1000`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "population_change_pct",
+                      "expression": "`population_change_pct`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`population_change_pct` IS NOT NULL"
+                    },
+                    {
+                      "expression": "`population` > 0"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Death Rate vs Population Change (2024)",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "population_change_pct",
+                  "displayName": "Population Change %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "death_rate_per_1000",
+                  "displayName": "Death Rate per 1,000",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "death_rate_per_1000",
+                  "displayName": "Death Rate",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_death_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top5_death_trend",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "sum(death_rate_per_1000)",
+                      "expression": "SUM(`death_rate_per_1000`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Death Rate Trend — Top 5 Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(death_rate_per_1000)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Death Rate per 1,000",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_decline_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top5_decline_trend",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "sum(population_change_pct)",
+                      "expression": "SUM(`population_change_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Population Change Trend — Top 5 Declining Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(population_change_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Population Change %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

@@ -1,0 +1,791 @@
+{
+  "datasets": [
+    {
+      "name": "kpi_latest",
+      "displayName": "KPI — Latest Year",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_finland_economic_health`\n",
+        "WHERE\n",
+        "  `year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_finland_economic_health`\n",
+        "    )"
+      ]
+    },
+    {
+      "name": "all_years",
+      "displayName": "All Years — Full Data",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_finland_economic_health`\n",
+        "ORDER BY\n",
+        "  `year`"
+      ]
+    },
+    {
+      "name": "growth_data",
+      "displayName": "Growth Data (Excl. First Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_finland_economic_health`\n",
+        "WHERE\n",
+        "  `bankruptcy_growth_pct` IS NOT NULL\n",
+        "ORDER BY\n",
+        "  `year`"
+      ],
+      "columns": [
+        {
+          "displayName": "Growth Direction",
+          "description": "Categorizes years as Growth or Contraction based on net new establishments sign.",
+          "expression": "CASE WHEN `new_establishments_yoy` >= 0 THEN 'Growth' ELSE 'Contraction' END"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "59eb75f7",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Finland Economic Health — National Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_bankruptcies",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_latest",
+                  "fields": [
+                    {
+                      "name": "total_bankruptcies_enterprises",
+                      "expression": "`total_bankruptcies_enterprises`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_bankruptcies_enterprises",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Bankruptcies"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_bankruptcy_growth",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_latest",
+                  "fields": [
+                    {
+                      "name": "bankruptcy_growth_pct",
+                      "expression": "`bankruptcy_growth_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Bankruptcy Growth %",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "bankruptcy_growth_pct",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Growth %"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_establishments",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_latest",
+                  "fields": [
+                    {
+                      "name": "total_establishments",
+                      "expression": "`total_establishments`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Establishments",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_establishments",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Establishments"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_estab_growth",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_latest",
+                  "fields": [
+                    {
+                      "name": "establishment_growth_pct",
+                      "expression": "`establishment_growth_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Establishment Growth %",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "establishment_growth_pct",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Growth %"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_death_rate",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_latest",
+                  "fields": [
+                    {
+                      "name": "death_rate_per_1000",
+                      "expression": "`death_rate_per_1000`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Death Rate per 1,000",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "death_rate_per_1000",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Death Rate"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 10,
+            "y": 1,
+            "width": 2,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_bankruptcies_establishments",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "all_years",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "total_bankruptcies_enterprises",
+                      "expression": "`total_bankruptcies_enterprises`"
+                    },
+                    {
+                      "name": "total_establishments",
+                      "expression": "`total_establishments`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bankruptcies & Establishments Over Time",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "total_bankruptcies_enterprises",
+                        "displayName": "Bankruptcies"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "total_establishments",
+                        "displayName": "Establishments"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  }
+                },
+                "color": {
+                  "legend": {
+                    "position": "bottom"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_growth_comparison",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "growth_data",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "bankruptcy_growth_pct",
+                      "expression": "`bankruptcy_growth_pct`"
+                    },
+                    {
+                      "name": "establishment_growth_pct",
+                      "expression": "`establishment_growth_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bankruptcy Growth vs Establishment Growth",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "bankruptcy_growth_pct",
+                        "displayName": "Bankruptcy Growth %"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "establishment_growth_pct",
+                        "displayName": "Establishment Growth %"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  }
+                },
+                "color": {
+                  "legend": {
+                    "position": "bottom"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_death_rate",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "all_years",
+                  "fields": [
+                    {
+                      "name": "death_rate_per_1000",
+                      "expression": "`death_rate_per_1000`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Death Rate per 1,000 Over Time",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "death_rate_per_1000",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Death Rate per 1,000",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "death_rate_per_1000",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Death Rate",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_population_deaths",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "all_years",
+                  "fields": [
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "total_population",
+                      "expression": "`total_population`"
+                    },
+                    {
+                      "name": "total_deaths",
+                      "expression": "`total_deaths`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Population & Deaths Over Time",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "primary": {
+                    "fields": [
+                      {
+                        "fieldName": "total_population",
+                        "displayName": "Population"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  },
+                  "secondary": {
+                    "fields": [
+                      {
+                        "fieldName": "total_deaths",
+                        "displayName": "Deaths"
+                      }
+                    ],
+                    "scale": {
+                      "type": "quantitative"
+                    }
+                  }
+                },
+                "color": {
+                  "legend": {
+                    "position": "bottom"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_new_establishments",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "growth_data",
+                  "fields": [
+                    {
+                      "name": "Growth Direction",
+                      "expression": "`Growth Direction`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "new_establishments_yoy",
+                      "expression": "`new_establishments_yoy`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Net New Establishments Year Over Year",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "new_establishments_yoy",
+                  "displayName": "Net New Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "Growth Direction",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Direction",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Growth",
+                        "color": "#388e3c"
+                      },
+                      {
+                        "value": "Contraction",
+                        "color": "#d32f2f"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_personnel",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "all_years",
+                  "fields": [
+                    {
+                      "name": "total_personnel_staff_years",
+                      "expression": "`total_personnel_staff_years`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Personnel Staff Years Over Time",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_personnel_staff_years",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Staff Years",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "total_personnel_staff_years",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Staff Years",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

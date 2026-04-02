@@ -1,0 +1,890 @@
+{
+  "datasets": [
+    {
+      "name": "latest_year_data",
+      "displayName": "Latest Year — All Municipalities",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`resilience_score`,\n",
+        "  f.`municipality_business_class`,\n",
+        "  f.`bankruptcies_per_1000_establishments`,\n",
+        "  f.`establishments_count`,\n",
+        "  f.`top_bankruptcy_industry`,\n",
+        "  f.`yoy_bankruptcies_pct`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience`\n",
+        "    )\n",
+        "  AND f.`resilience_score` IS NOT NULL"
+      ]
+    },
+    {
+      "name": "top_bottom_15",
+      "displayName": "Top 15 + Bottom 15 by Resilience",
+      "queryLines": [
+        "WITH ranked AS (\n",
+        "  SELECT\n",
+        "    dm.`municipality_name`,\n",
+        "    f.`resilience_score`,\n",
+        "    f.`municipality_business_class`,\n",
+        "    ROW_NUMBER() OVER (ORDER BY f.`resilience_score` DESC) as rank_top,\n",
+        "    ROW_NUMBER() OVER (ORDER BY f.`resilience_score` ASC) as rank_bottom\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience` f\n",
+        "      INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "        ON f.`municipality_id` = dm.`municipality_id`\n",
+        "  WHERE\n",
+        "    f.`year`\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(`year`)\n",
+        "        FROM\n",
+        "          `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience`\n",
+        "      )\n",
+        "    AND f.`resilience_score` IS NOT NULL\n",
+        ")\n",
+        "SELECT\n",
+        "  `municipality_name`,\n",
+        "  `resilience_score`,\n",
+        "  `municipality_business_class`\n",
+        "FROM\n",
+        "  ranked\n",
+        "WHERE\n",
+        "  rank_top <= 15\n",
+        "  OR rank_bottom <= 15\n",
+        "ORDER BY\n",
+        "  `resilience_score` DESC"
+      ]
+    },
+    {
+      "name": "class_distribution",
+      "displayName": "Business Class Distribution by Year",
+      "queryLines": [
+        "SELECT\n",
+        "  f.`year`,\n",
+        "  f.`municipality_business_class`,\n",
+        "  COUNT(*) as municipality_count\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience` f\n",
+        "WHERE\n",
+        "  f.`municipality_business_class` IS NOT NULL\n",
+        "GROUP BY\n",
+        "  f.`year`,\n",
+        "  f.`municipality_business_class`\n",
+        "ORDER BY\n",
+        "  f.`year`"
+      ]
+    },
+    {
+      "name": "bottom5_trend",
+      "displayName": "Bottom 5 Resilience Trend",
+      "queryLines": [
+        "WITH bottom5 AS (\n",
+        "  SELECT\n",
+        "    f.`municipality_id`\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience` f\n",
+        "  WHERE\n",
+        "    f.`year`\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(`year`)\n",
+        "        FROM\n",
+        "          `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience`\n",
+        "      )\n",
+        "    AND f.`resilience_score` IS NOT NULL\n",
+        "  ORDER BY\n",
+        "    f.`resilience_score` ASC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  f.`year`,\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`resilience_score`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`municipality_id` IN (\n",
+        "    SELECT\n",
+        "      `municipality_id`\n",
+        "    FROM\n",
+        "      bottom5\n",
+        "  )\n",
+        "  AND f.`resilience_score` IS NOT NULL\n",
+        "ORDER BY\n",
+        "  f.`year`,\n",
+        "  dm.`municipality_name`"
+      ]
+    },
+    {
+      "name": "yoy_top20",
+      "displayName": "YoY Bankruptcy Change — Top 20",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`yoy_bankruptcies_pct`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_municipality_resilience`\n",
+        "    )\n",
+        "  AND f.`yoy_bankruptcies_pct` IS NOT NULL\n",
+        "ORDER BY\n",
+        "  f.`yoy_bankruptcies_pct` DESC\n",
+        "LIMIT 20"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "d7380332",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Municipality Business Resilience — Latest Year Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_fragile",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_data",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`municipality_business_class` IN ('Fragile')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Fragile Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_strong",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_data",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`municipality_business_class` IN ('Strong')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Strong Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_avg_score",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_data",
+                  "fields": [
+                    {
+                      "name": "avg(resilience_score)",
+                      "expression": "AVG(`resilience_score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Average Resilience Score",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(resilience_score)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg Score"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_lowest",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_data",
+                  "fields": [
+                    {
+                      "name": "min(resilience_score)",
+                      "expression": "MIN(`resilience_score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Lowest Resilience Score",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "min(resilience_score)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Min Score"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top_bottom",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_bottom_15",
+                  "fields": [
+                    {
+                      "name": "municipality_business_class",
+                      "expression": "`municipality_business_class`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "resilience_score",
+                      "expression": "`resilience_score`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 15 & Bottom 15 Municipalities by Resilience Score",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "resilience_score",
+                  "displayName": "Resilience Score",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_business_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Business Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Strong",
+                        "color": "#388e3c"
+                      },
+                      {
+                        "value": "Stable",
+                        "color": "#1976d2"
+                      },
+                      {
+                        "value": "Watchlist",
+                        "color": "#f57c00"
+                      },
+                      {
+                        "value": "Fragile",
+                        "color": "#d32f2f"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_class_dist",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "class_distribution",
+                  "fields": [
+                    {
+                      "name": "municipality_business_class",
+                      "expression": "`municipality_business_class`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "municipality_count",
+                      "expression": "`municipality_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Business Class Distribution by Year",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "municipality_count",
+                  "displayName": "Municipalities",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_business_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Business Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Strong",
+                        "color": "#388e3c"
+                      },
+                      {
+                        "value": "Stable",
+                        "color": "#1976d2"
+                      },
+                      {
+                        "value": "Watchlist",
+                        "color": "#f57c00"
+                      },
+                      {
+                        "value": "Fragile",
+                        "color": "#d32f2f"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_data",
+                  "fields": [
+                    {
+                      "name": "municipality_business_class",
+                      "expression": "`municipality_business_class`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "bankruptcies_per_1000_establishments",
+                      "expression": "`bankruptcies_per_1000_establishments`"
+                    },
+                    {
+                      "name": "resilience_score",
+                      "expression": "`resilience_score`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "IN_RANGE(`establishments_count`, 1, NULL)"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Resilience Score vs Bankruptcy Pressure",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "bankruptcies_per_1000_establishments",
+                  "displayName": "Bankruptcy Rate per 1,000",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "resilience_score",
+                  "displayName": "Resilience Score",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_business_class",
+                  "displayName": "Business Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Strong",
+                        "color": "#388e3c"
+                      },
+                      {
+                        "value": "Stable",
+                        "color": "#1976d2"
+                      },
+                      {
+                        "value": "Watchlist",
+                        "color": "#f57c00"
+                      },
+                      {
+                        "value": "Fragile",
+                        "color": "#d32f2f"
+                      }
+                    ]
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_fragile_industry",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_data",
+                  "fields": [
+                    {
+                      "name": "top_bankruptcy_industry",
+                      "expression": "`top_bankruptcy_industry`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`municipality_business_class` IN ('Fragile')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top Bankruptcy Industry in Fragile Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "top_bankruptcy_industry",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "displayName": "Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "top_bankruptcy_industry",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 19,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_bottom5_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "bottom5_trend",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "resilience_score",
+                      "expression": "`resilience_score`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Resilience Score Trend — Bottom 5 Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "resilience_score",
+                  "displayName": "Resilience Score",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 19,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_yoy_top20",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "yoy_top20",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "yoy_bankruptcies_pct",
+                      "expression": "`yoy_bankruptcies_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by YoY Bankruptcy Increase",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "yoy_bankruptcies_pct",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "YoY Bankruptcies %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 26,
+            "width": 12,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

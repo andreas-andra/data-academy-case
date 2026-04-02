@@ -1,0 +1,882 @@
+{
+  "datasets": [
+    {
+      "name": "industries_latest",
+      "displayName": "Industries — Latest Year Aggregates",
+      "queryLines": [
+        "SELECT\n",
+        "  di.`industry_name`,\n",
+        "  SUM(f.`bankruptcies_employees`) as total_employees_affected,\n",
+        "  AVG(f.`employees_affected_per_bankruptcy`) as avg_employees_per_bankruptcy\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_labor_impact_bankruptcies` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "GROUP BY\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  total_employees_affected DESC"
+      ]
+    },
+    {
+      "name": "top5_employees_trend",
+      "displayName": "Top 5 Industries — Employees Over Time",
+      "queryLines": [
+        "WITH top5 AS (\n",
+        "  SELECT\n",
+        "    f.`industry_id`\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_labor_impact_bankruptcies` f\n",
+        "  GROUP BY\n",
+        "    f.`industry_id`\n",
+        "  ORDER BY\n",
+        "    SUM(f.`bankruptcies_employees`) DESC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  di.`industry_name`,\n",
+        "  SUM(f.`bankruptcies_employees`) as total_employees_affected\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_labor_impact_bankruptcies` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  f.`industry_id` IN (\n",
+        "    SELECT\n",
+        "      `industry_id`\n",
+        "    FROM\n",
+        "      top5\n",
+        "  )\n",
+        "GROUP BY\n",
+        "  dy.`year`,\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  dy.`year`,\n",
+        "  total_employees_affected DESC"
+      ]
+    },
+    {
+      "name": "industry_year_heatmap",
+      "displayName": "Industry × Year Employee Heatmap",
+      "queryLines": [
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  di.`industry_name`,\n",
+        "  SUM(f.`bankruptcies_employees`) as total_employees_affected\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_labor_impact_bankruptcies` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "GROUP BY\n",
+        "  dy.`year`,\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  di.`industry_name`,\n",
+        "  dy.`year`"
+      ]
+    },
+    {
+      "name": "impact_class_trend",
+      "displayName": "Labor Impact Class Trend",
+      "queryLines": [
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  f.`labor_impact_absolute_class`,\n",
+        "  COUNT(*) as combination_count\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_labor_impact_bankruptcies` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "GROUP BY\n",
+        "  dy.`year`,\n",
+        "  f.`labor_impact_absolute_class`\n",
+        "ORDER BY\n",
+        "  dy.`year`"
+      ]
+    },
+    {
+      "name": "severe_top20",
+      "displayName": "Top 20 Severe Combinations (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  di.`industry_name`,\n",
+        "  f.`bankruptcies_employees`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_labor_impact_bankruptcies` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND f.`labor_impact_class` = 'Severe labor impact'\n",
+        "ORDER BY\n",
+        "  f.`bankruptcies_employees` DESC\n",
+        "LIMIT 20"
+      ],
+      "columns": [
+        {
+          "displayName": "Municipality — Industry",
+          "description": "Combined label for bar chart showing municipality and industry together.",
+          "expression": "CONCAT(`municipality_name`, ' — ', `industry_name`)"
+        }
+      ]
+    },
+    {
+      "name": "kpi_severe_count",
+      "displayName": "KPI — Severe Impact Count (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  COUNT(*) as severe_count\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_labor_impact_bankruptcies` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND f.`labor_impact_class` = 'Severe labor impact'"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "db3aedea",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Industry Labor Impact of Bankruptcies — Latest Year Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_top_industry",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "industries_latest",
+                  "fields": [
+                    {
+                      "name": "max(total_employees_affected)",
+                      "expression": "MAX(`total_employees_affected`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Highest Industry Employee Impact",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(total_employees_affected)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Employees"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_total_employees",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "industries_latest",
+                  "fields": [
+                    {
+                      "name": "sum(total_employees_affected)",
+                      "expression": "SUM(`total_employees_affected`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Employees Affected",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(total_employees_affected)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Total Employees"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_avg_intensity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "industries_latest",
+                  "fields": [
+                    {
+                      "name": "max(avg_employees_per_bankruptcy)",
+                      "expression": "MAX(`avg_employees_per_bankruptcy`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Highest Avg Employees per Bankruptcy",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(avg_employees_per_bankruptcy)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg Employees/Bankruptcy"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_severe",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_severe_count",
+                  "fields": [
+                    {
+                      "name": "severe_count",
+                      "expression": "`severe_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Severe Labor Impact Combinations",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "severe_count",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Severe Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top10_employees",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "industries_latest",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "total_employees_affected",
+                      "expression": "`total_employees_affected`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 10 Industries by Employees Affected",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "total_employees_affected",
+                  "displayName": "Employees Affected",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top10_intensity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "industries_latest",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "avg_employees_per_bankruptcy",
+                      "expression": "`avg_employees_per_bankruptcy`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 10 Industries by Avg Employees per Bankruptcy",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "avg_employees_per_bankruptcy",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg Employees/Bankruptcy",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top5_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top5_employees_trend",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "total_employees_affected",
+                      "expression": "`total_employees_affected`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Employees Affected Over Time (Top 5 Industries)",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_employees_affected",
+                  "displayName": "Employees Affected",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_impact_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "impact_class_trend",
+                  "fields": [
+                    {
+                      "name": "labor_impact_absolute_class",
+                      "expression": "`labor_impact_absolute_class`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "combination_count",
+                      "expression": "`combination_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Labor Impact Class Distribution by Year",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "combination_count",
+                  "displayName": "Combinations",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "labor_impact_absolute_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Impact Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Severe labor impact",
+                        "color": "#d32f2f"
+                      },
+                      {
+                        "value": "High labor impact",
+                        "color": "#f57c00"
+                      },
+                      {
+                        "value": "Moderate labor impact",
+                        "color": "#fbc02d"
+                      },
+                      {
+                        "value": "Low labor impact",
+                        "color": "#66bb6a"
+                      },
+                      {
+                        "value": "No labor impact",
+                        "color": "#388e3c"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_heatmap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "industry_year_heatmap",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "sum(total_employees_affected)",
+                      "expression": "SUM(`total_employees_affected`)"
+                    }
+                  ],
+                  "cubeGroupingSets": {
+                    "sets": [
+                      {
+                        "fieldNames": [
+                          "industry_name"
+                        ]
+                      },
+                      {
+                        "fieldNames": [
+                          "year"
+                        ]
+                      }
+                    ]
+                  },
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "direction": "ASC",
+                      "expression": "`year`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Industry × Year Employee Impact",
+                "showTitle": true
+              },
+              "widgetType": "pivot",
+              "encodings": {
+                "rows": [
+                  {
+                    "fieldName": "industry_name",
+                    "displayTotal": true,
+                    "displayName": "Industry"
+                  }
+                ],
+                "columns": [
+                  {
+                    "fieldName": "year",
+                    "displayTotal": true,
+                    "displayName": "Year"
+                  }
+                ],
+                "cell": {
+                  "type": "multi-cell",
+                  "fields": [
+                    {
+                      "fieldName": "sum(total_employees_affected)",
+                      "cellType": "text",
+                      "displayName": "Employees Affected",
+                      "style": {
+                        "type": "color-scale",
+                        "backgroundColor": {
+                          "scale": {
+                            "type": "quantitative",
+                            "colorRamp": {
+                              "mode": "scheme",
+                              "scheme": "orangered"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_severe_top20",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "severe_top20",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "Municipality — Industry",
+                      "expression": "`Municipality — Industry`"
+                    },
+                    {
+                      "name": "bankruptcies_employees",
+                      "expression": "`bankruptcies_employees`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Severe Municipality–Industry Combinations by Employees",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Municipality — Industry",
+                  "displayName": "Municipality — Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_employees",
+                  "displayName": "Employees Affected",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 25,
+            "width": 12,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

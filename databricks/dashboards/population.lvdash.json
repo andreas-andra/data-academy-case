@@ -1,0 +1,713 @@
+{
+  "datasets": [
+    {
+      "name": "top20_population",
+      "displayName": "Top 20 by Population",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.population\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "ORDER BY\n",
+        "  f.population DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "latest_year_all",
+      "displayName": "All Municipalities (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  f.year,\n",
+        "  m.municipality_name,\n",
+        "  f.population,\n",
+        "  f.establishments_count,\n",
+        "  f.personnel_staff_years\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )"
+      ]
+    },
+    {
+      "name": "top20_establishments",
+      "displayName": "Top 20 by Establishments",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.establishments_count\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "ORDER BY\n",
+        "  f.establishments_count DESC\n",
+        "LIMIT 20"
+      ]
+    },
+    {
+      "name": "national_trends",
+      "displayName": "National Trends by Year",
+      "queryLines": [
+        "SELECT\n",
+        "  f.year,\n",
+        "  SUM(f.population) AS total_population,\n",
+        "  SUM(f.establishments_count) AS total_establishments,\n",
+        "  SUM(f.personnel_staff_years) AS total_personnel\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "GROUP BY\n",
+        "  f.year\n",
+        "ORDER BY\n",
+        "  f.year"
+      ]
+    },
+    {
+      "name": "top20_personnel",
+      "displayName": "Top 20 by Personnel",
+      "queryLines": [
+        "SELECT\n",
+        "  m.municipality_name,\n",
+        "  f.personnel_staff_years\n",
+        "FROM\n",
+        "  data_academy_fi_06.andreas_statfin_gold.fact_population f\n",
+        "    JOIN data_academy_fi_06.andreas_statfin_gold.dim_municipality m\n",
+        "      ON f.municipality_id = m.municipality_id\n",
+        "WHERE\n",
+        "  f.year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        data_academy_fi_06.andreas_statfin_gold.fact_population\n",
+        "    )\n",
+        "ORDER BY\n",
+        "  f.personnel_staff_years DESC\n",
+        "LIMIT 20"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "1efd8d08",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Population and Business Base — National Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_population",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "sum(population)",
+                      "expression": "SUM(`population`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total National Population",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(population)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Population"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_establishments",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "sum(establishments_count)",
+                      "expression": "SUM(`establishments_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total National Establishments",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(establishments_count)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Establishments"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 1,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_personnel",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "sum(personnel_staff_years)",
+                      "expression": "SUM(`personnel_staff_years`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Personnel Staff Years",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(personnel_staff_years)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Personnel Staff Years"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 1,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_pop",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_population",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(population)",
+                      "expression": "SUM(`population`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Population (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(population)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Population",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_est",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_establishments",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(establishments_count)",
+                      "expression": "SUM(`establishments_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Establishments (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(establishments_count)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_national_pop",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "national_trends",
+                  "fields": [
+                    {
+                      "name": "sum(total_population)",
+                      "expression": "SUM(`total_population`)"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Total National Population Over Time",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_population)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Population",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "sum(total_population)",
+                  "displayName": "Population",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_national_est",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "national_trends",
+                  "fields": [
+                    {
+                      "name": "sum(total_establishments)",
+                      "expression": "SUM(`total_establishments`)"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Total National Establishments Over Time",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_establishments)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "sum(total_establishments)",
+                  "displayName": "Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "population",
+                      "expression": "`population`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "establishments_count",
+                      "expression": "`establishments_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Population vs Establishments (2024)",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "population",
+                  "displayName": "Population",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "establishments_count",
+                  "displayName": "Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "population",
+                  "displayName": "Population",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20_personnel",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top20_personnel",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "sum(personnel_staff_years)",
+                      "expression": "SUM(`personnel_staff_years`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipalities by Personnel Staff Years (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(personnel_staff_years)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Personnel Staff Years",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

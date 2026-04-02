@@ -1,0 +1,985 @@
+{
+  "datasets": [
+    {
+      "name": "supported_overrep_2024",
+      "displayName": "Supported Overrepresented 2024",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  di.`industry_name`,\n",
+        "  f.`bankruptcy_specialization_lq`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_bankruptcy_specialization` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year` = 2024\n",
+        "  AND f.`specialization_support_class` = 'Supported signal'\n",
+        "  AND f.`bankruptcy_specialization_lq` > 1\n",
+        "ORDER BY\n",
+        "  f.`bankruptcy_specialization_lq` DESC"
+      ],
+      "columns": [
+        {
+          "displayName": "Municipality — Industry",
+          "description": "Combined label for bar chart x-axis showing municipality and industry together.",
+          "expression": "CONCAT(`municipality_name`, ' — ', `industry_name`)"
+        }
+      ]
+    },
+    {
+      "name": "specialization_trend",
+      "displayName": "Specialization Trend by Year",
+      "queryLines": [
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  f.`specialization_absolute_class`,\n",
+        "  COUNT(*) as combination_count\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_bankruptcy_specialization` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "WHERE\n",
+        "  f.`specialization_support_class` = 'Supported signal'\n",
+        "GROUP BY\n",
+        "  dy.`year`,\n",
+        "  f.`specialization_absolute_class`\n",
+        "ORDER BY\n",
+        "  dy.`year`"
+      ]
+    },
+    {
+      "name": "industry_frequency",
+      "displayName": "Industry Overrepresentation Frequency",
+      "queryLines": [
+        "SELECT\n",
+        "  di.`industry_name`,\n",
+        "  COUNT(*) as overrepresentation_count\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_bankruptcy_specialization` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  f.`specialization_support_class` = 'Supported signal'\n",
+        "  AND f.`bankruptcy_specialization_lq` > 1\n",
+        "GROUP BY\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  overrepresentation_count DESC"
+      ]
+    },
+    {
+      "name": "scatter_2024",
+      "displayName": "Scatter — Enterprise vs Employee LQ (2024)",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  di.`industry_name`,\n",
+        "  f.`bankruptcy_specialization_lq`,\n",
+        "  f.`bankruptcy_employee_specialization_lq`,\n",
+        "  f.`specialization_support_class`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_bankruptcy_specialization` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year` = 2024\n",
+        "  AND f.`specialization_support_class` IN ('Supported signal', 'Thin municipality bankruptcy base')\n",
+        "  AND f.`bankruptcy_specialization_lq` > 1\n",
+        "ORDER BY\n",
+        "  f.`bankruptcy_specialization_lq` DESC"
+      ]
+    },
+    {
+      "name": "support_breakdown",
+      "displayName": "Support Quality Breakdown",
+      "queryLines": [
+        "SELECT\n",
+        "  f.`specialization_support_class`,\n",
+        "  COUNT(*) as row_count\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_bankruptcy_specialization` f\n",
+        "GROUP BY\n",
+        "  f.`specialization_support_class`\n",
+        "ORDER BY\n",
+        "  row_count DESC"
+      ]
+    },
+    {
+      "name": "validation_top10",
+      "displayName": "Validation — Top 10 All Classes (2024)",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  di.`industry_name`,\n",
+        "  f.`bankruptcies_enterprises`,\n",
+        "  f.`bankruptcy_specialization_lq`,\n",
+        "  f.`bankruptcy_employee_specialization_lq`,\n",
+        "  f.`specialization_support_class`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_industry_bankruptcy_specialization` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year` = 2024\n",
+        "ORDER BY\n",
+        "  f.`bankruptcy_specialization_lq` DESC\n",
+        "LIMIT 10"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "bf7a028d",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Industry Bankruptcy Specialization — 2024 Overview (Supported Signals)"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_total",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "supported_overrep_2024",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Overrepresented Combinations",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_avg_lq",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "supported_overrep_2024",
+                  "fields": [
+                    {
+                      "name": "avg(bankruptcy_specialization_lq)",
+                      "expression": "AVG(`bankruptcy_specialization_lq`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Average Specialization LQ",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(bankruptcy_specialization_lq)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg LQ"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_max_lq",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "supported_overrep_2024",
+                  "fields": [
+                    {
+                      "name": "max(bankruptcy_specialization_lq)",
+                      "expression": "MAX(`bankruptcy_specialization_lq`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Highest Specialization LQ",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(bankruptcy_specialization_lq)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 3
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Max LQ"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_top_industry",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "supported_overrep_2024",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`industry_name` IN ('Construction')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Most Overrepresented: Construction",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Cases"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top20",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "supported_overrep_2024",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "Municipality — Industry",
+                      "expression": "`Municipality — Industry`"
+                    },
+                    {
+                      "name": "bankruptcy_specialization_lq",
+                      "expression": "`bankruptcy_specialization_lq`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 20 Municipality–Industry Specializations (Supported, LQ > 1)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Municipality — Industry",
+                  "displayName": "Municipality — Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcy_specialization_lq",
+                  "displayName": "Specialization LQ",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "specialization_trend",
+                  "fields": [
+                    {
+                      "name": "specialization_absolute_class",
+                      "expression": "`specialization_absolute_class`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "combination_count",
+                      "expression": "`combination_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Specialization Distribution Over Time",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "combination_count",
+                  "displayName": "Combinations",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "specialization_absolute_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Classification",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Very high specialization",
+                        "color": "#d32f2f"
+                      },
+                      {
+                        "value": "High specialization",
+                        "color": "#f57c00"
+                      },
+                      {
+                        "value": "Moderate specialization",
+                        "color": "#fbc02d"
+                      },
+                      {
+                        "value": "Low specialization",
+                        "color": "#388e3c"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_industry_freq",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "industry_frequency",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "overrepresentation_count",
+                      "expression": "`overrepresentation_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Industries Most Often Overrepresented (All Years)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "overrepresentation_count",
+                  "displayName": "Overrepresentation Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 12,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_heatmap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "supported_overrep_2024",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "avg(bankruptcy_specialization_lq)",
+                      "expression": "AVG(`bankruptcy_specialization_lq`)"
+                    }
+                  ],
+                  "cubeGroupingSets": {
+                    "sets": [
+                      {
+                        "fieldNames": [
+                          "municipality_name"
+                        ]
+                      },
+                      {
+                        "fieldNames": [
+                          "industry_name"
+                        ]
+                      }
+                    ]
+                  },
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "direction": "ASC",
+                      "expression": "`industry_name`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Municipality × Industry Specialization Matrix (2024)",
+                "showTitle": true
+              },
+              "widgetType": "pivot",
+              "encodings": {
+                "rows": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayTotal": false,
+                    "displayName": "Municipality"
+                  }
+                ],
+                "columns": [
+                  {
+                    "fieldName": "industry_name",
+                    "displayTotal": false,
+                    "displayName": "Industry"
+                  }
+                ],
+                "cell": {
+                  "type": "multi-cell",
+                  "fields": [
+                    {
+                      "fieldName": "avg(bankruptcy_specialization_lq)",
+                      "cellType": "text",
+                      "displayName": "Specialization LQ",
+                      "style": {
+                        "type": "color-scale",
+                        "backgroundColor": {
+                          "scale": {
+                            "type": "quantitative",
+                            "colorRamp": {
+                              "mode": "scheme",
+                              "scheme": "orangered"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 19,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "scatter_2024",
+                  "fields": [
+                    {
+                      "name": "specialization_support_class",
+                      "expression": "`specialization_support_class`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "bankruptcy_specialization_lq",
+                      "expression": "`bankruptcy_specialization_lq`"
+                    },
+                    {
+                      "name": "bankruptcy_employee_specialization_lq",
+                      "expression": "`bankruptcy_employee_specialization_lq`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Enterprise vs Employee Specialization LQ (2024)",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "bankruptcy_specialization_lq",
+                  "displayName": "Enterprise LQ",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcy_employee_specialization_lq",
+                  "displayName": "Employee LQ",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "specialization_support_class",
+                  "displayName": "Support Class",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  },
+                  {
+                    "fieldName": "industry_name",
+                    "displayName": "Industry"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 27,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_support",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "support_breakdown",
+                  "fields": [
+                    {
+                      "name": "specialization_support_class",
+                      "expression": "`specialization_support_class`"
+                    },
+                    {
+                      "name": "row_count",
+                      "expression": "`row_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Support Quality Breakdown (All Rows)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "specialization_support_class",
+                  "displayName": "Support Class",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "row_count",
+                  "displayName": "Row Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "specialization_support_class",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Support Class",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 27,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "validation",
+      "displayName": "Validation",
+      "layout": [
+        {
+          "widget": {
+            "name": "val_header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Validation — Top 10 Municipality–Industry Combinations (2024, All Support Classes)"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "val_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "validation_top10",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "bankruptcies_enterprises",
+                      "expression": "`bankruptcies_enterprises`"
+                    },
+                    {
+                      "name": "bankruptcy_specialization_lq",
+                      "expression": "`bankruptcy_specialization_lq`"
+                    },
+                    {
+                      "name": "bankruptcy_employee_specialization_lq",
+                      "expression": "`bankruptcy_employee_specialization_lq`"
+                    },
+                    {
+                      "name": "specialization_support_class",
+                      "expression": "`specialization_support_class`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Top 10 by Specialization LQ (All Support Classes)",
+                "showTitle": true
+              },
+              "rowsPerPage": 25,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  },
+                  {
+                    "fieldName": "industry_name",
+                    "displayName": "Industry"
+                  },
+                  {
+                    "fieldName": "bankruptcies_enterprises",
+                    "displayName": "Enterprises"
+                  },
+                  {
+                    "fieldName": "bankruptcy_specialization_lq",
+                    "displayName": "Enterprise LQ"
+                  },
+                  {
+                    "fieldName": "bankruptcy_employee_specialization_lq",
+                    "displayName": "Employee LQ"
+                  },
+                  {
+                    "fieldName": "specialization_support_class",
+                    "displayName": "Support Class",
+                    "style": {
+                      "type": "basic",
+                      "rules": [
+                        {
+                          "condition": {
+                            "operand": {
+                              "type": "data-value",
+                              "value": "Supported signal"
+                            },
+                            "operator": "="
+                          },
+                          "backgroundColor": "#e8f5e9",
+                          "foregroundColor": "#2e7d32"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 12,
+            "height": 10
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
