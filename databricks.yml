@@ -61,3 +61,8 @@ resources:
       display_name: "Regional Mortality & Population Change"
       file_path: ./databricks/dashboards/regional-mortality.lvdash.json
       warehouse_id: 93108fdbef48ca6e
+
+    municipality-business-dynamics:
+      display_name: "Municipality Business Dynamics"
+      file_path: ./databricks/dashboards/municipality-business-dynamics.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
