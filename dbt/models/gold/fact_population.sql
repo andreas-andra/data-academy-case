@@ -13,6 +13,7 @@ select
     dy.year_id,
     dm.municipality_id,
     p.population,
+    p.deaths,
     e.establishments_count,
     e.personnel_staff_years
 from p
