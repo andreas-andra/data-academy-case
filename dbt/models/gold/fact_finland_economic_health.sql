@@ -45,7 +45,6 @@ with_growth as (
 )
 
 select
-    wg.year,
     dy.year_id,
     wg.total_bankruptcies_enterprises,
     wg.total_bankruptcies_employees,

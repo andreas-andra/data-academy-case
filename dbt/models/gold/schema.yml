@@ -6,15 +6,11 @@ models:
       Municipality-level overview fact. Grain: year × municipality.
       Combines population, deaths, establishments, personnel, and municipality-level
       bankruptcy totals into one wide monitoring fact for high-level dashboarding.
-      The implemented model keeps the natural year value as a helper column alongside
-      `year_id`.
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [year_id, municipality_id]
     columns:
-      - name: year
-        tests: [not_null]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null]
@@ -63,8 +59,6 @@ models:
           arguments:
             combination_of_columns: [year_id, municipality_id, industry_id]
     columns:
-      - name: year
-        tests: [not_null]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null]
@@ -85,8 +79,6 @@ models:
           arguments:
             combination_of_columns: [year_id, municipality_id]
     columns:
-      - name: year
-        tests: [not_null]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null]
@@ -101,8 +93,6 @@ models:
       Summarizes annual national totals for bankruptcies, employees affected, establishments,
       personnel, population, and deaths, plus year-over-year growth indicators.
     columns:
-      - name: year
-        tests: [not_null, unique]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null, unique]
@@ -118,8 +108,6 @@ models:
           arguments:
             combination_of_columns: [year_id, industry_id]
     columns:
-      - name: year
-        tests: [not_null]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null]
@@ -170,8 +158,6 @@ models:
       Combines population, enterprise establishment, and bankruptcy data with YoY growth trends,
       3-year rolling averages, and a weighted resilience score (0–100) derived from percent_rank
       across municipalities within each year.
-      The implemented model keeps helper descriptive columns (`municipality`, `top_bankruptcy_industry`)
-      in the fact for exploration convenience.
       NOTE: yoy_* columns and resilience_score are NULL for 2020 (first year in dataset — no prior year to diff against).
       Filter year >= 2021 when querying resilience_score or municipality_business_class.
     tests:
@@ -179,36 +165,29 @@ models:
           arguments:
             combination_of_columns: [year_id, municipality_id]
     columns:
-      - name: year
-        tests: [not_null]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null]
       - name: municipality_id
         description: "Foreign key to dim_municipality."
         tests: [not_null]
-      - name: municipality
-        tests: [not_null]
       - name: resilience_score
         description: "Weighted composite score 0–100. NULL for 2020. Higher = more resilient."
       - name: municipality_business_class
         description: "Strong (>=80), Stable (>=60), Watchlist (>=40), Fragile (<40). NULL for 2020."
-      - name: top_bankruptcy_industry
-        description: "Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows."
+      - name: top_industry_id
+        description: "Foreign key to dim_industry. Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows. NULL if no qualifying industry bankruptcies exist."
 
   - name: fact_regional_mortality
     description: >
       Municipality-level mortality and population change fact. Grain: year × municipality.
       Tracks deaths, death rate, and year-over-year population change for regional trend analysis.
-      The implemented model keeps the natural year value as a helper column alongside `year_id`.
       NOTE: population_change_* columns are NULL when the municipality does not have a row in the prior calendar year.
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
             combination_of_columns: [year_id, municipality_id]
     columns:
-      - name: year
-        tests: [not_null]
       - name: year_id
         description: "Foreign key to dim_year."
         tests: [not_null]

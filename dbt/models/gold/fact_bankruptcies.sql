@@ -7,7 +7,6 @@ dim_i as (select * from {{ ref('dim_industry') }}),
 dim_y as (select * from {{ ref('dim_year') }})
 
 select
-    b.year,
     dy.year_id,
     dm.municipality_id,
     di.industry_id,
