@@ -182,6 +182,58 @@ models:
       - name: top_industry_id
         description: "Foreign key to dim_industry. Industry with most bankruptcies that year in the municipality. Excludes Total and Industry unknown rows. NULL if no qualifying industry bankruptcies exist."
 
+  - name: fact_municipality_business_dynamics
+    description: >
+      Municipality business dynamics fact. Grain: year × municipality.
+      Tracks establishment counts, personnel, and population with year-over-year changes,
+      3-year rolling averages, and relative classification bands (business density and growth class).
+      Anchored on silver_statfin_population so all municipalities appear even when enterprise
+      data is missing. Joins dim_year and dim_municipality only — no industry dimension.
+      NOTE: yoy_* and rolling_3y_avg_* columns are NULL for the first year a municipality appears
+      and NULL whenever the prior-year row is non-consecutive (sparse series guard).
+      Filter year >= 2021 when querying any yoy or growth_class columns.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id]
+    columns:
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests: [not_null]
+      - name: municipality_id
+        description: "Foreign key to dim_municipality."
+        tests: [not_null]
+      - name: establishments_count
+        description: "Total number of enterprise establishments in the municipality-year."
+      - name: personnel_staff_years
+        description: "Total personnel measured in staff-years in the municipality-year."
+      - name: population
+        description: "Total population in the municipality-year."
+      - name: establishments_per_1000_population
+        description: "Business density metric: establishments per 1000 inhabitants. NULL if population is 0."
+      - name: personnel_per_1000_population
+        description: "Personnel density metric: staff-years per 1000 inhabitants. NULL if population is 0."
+      - name: avg_personnel_per_establishment
+        description: "Average size of an establishment in staff-years. NULL if establishments_count is 0."
+      - name: establishments_yoy_change
+        description: "Absolute year-over-year change in establishments_count. NULL for first or non-consecutive municipality years."
+      - name: establishments_yoy_pct
+        description: "Percent year-over-year change in establishments_count. NULL for first or non-consecutive municipality years."
+      - name: personnel_yoy_change
+        description: "Absolute year-over-year change in personnel_staff_years. NULL for first or non-consecutive municipality years."
+      - name: personnel_yoy_pct
+        description: "Percent year-over-year change in personnel_staff_years. NULL for first or non-consecutive municipality years."
+      - name: population_yoy_change
+        description: "Absolute year-over-year change in population. NULL for first or non-consecutive municipality years."
+      - name: population_yoy_pct
+        description: "Percent year-over-year change in population. NULL for first or non-consecutive municipality years."
+      - name: rolling_3y_avg_establishments_growth_pct
+        description: "3-year rolling average of establishments_yoy_pct for the municipality series."
+      - name: business_density_class
+        description: "Relative density band within each year via ntile(4) on establishments_per_1000_population: High density / Above average density / Below average density / Low density."
+      - name: growth_class
+        description: "Relative growth band within each year via ntile(4) on establishments_yoy_pct (NULL excluded): Strong growth / Moderate growth / Moderate decline / Strong decline. NULL for first or non-consecutive years."
+
   - name: fact_regional_mortality
     description: >
       Municipality-level mortality and population change fact. Grain: year × municipality.

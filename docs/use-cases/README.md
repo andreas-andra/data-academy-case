@@ -24,6 +24,8 @@ This folder contains business-facing documentation for the gold-layer use cases 
    Industry- and municipality-level view of how many employees are affected by bankruptcy events.
 10. `industry-bankruptcy-specialization.md`
    Municipality- and industry-level view of where bankruptcy structure is overrepresented relative to the national pattern.
+11. `municipality-business-dynamics.md`
+   Municipality-level business base growth and decline tracking with establishment density and personnel trends.
 
 ## Related Dashboard Assets
 
@@ -47,6 +49,8 @@ This folder contains business-facing documentation for the gold-layer use cases 
    Dashboard guidance and prompt assets for the supporting population and business-base fact.
 10. `docs/genie-dashboards/regional-mortality-and-population-change.md`
    Dashboard guidance and prompt assets for the mortality and population-change use case.
+11. `docs/genie-dashboards/municipality-business-dynamics.md`
+   Dashboard guidance and prompt assets for the municipality business dynamics use case.
 
 ## Industry Bankruptcy Specialization Bundle
 

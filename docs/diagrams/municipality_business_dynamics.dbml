@@ -1,0 +1,36 @@
+Table dim_year {
+  year_id int [pk]
+  year int [not null]
+}
+
+Table dim_municipality {
+  municipality_id varchar(32) [pk]
+  municipality_name varchar [not null]
+}
+
+Table fact_municipality_business_dynamics {
+  year_id int [not null]
+  municipality_id varchar(32) [not null]
+  establishments_count int
+  personnel_staff_years double
+  population int
+  establishments_per_1000_population double
+  personnel_per_1000_population double
+  avg_personnel_per_establishment double
+  establishments_yoy_change int
+  establishments_yoy_pct double
+  personnel_yoy_change double
+  personnel_yoy_pct double
+  population_yoy_change int
+  population_yoy_pct double
+  rolling_3y_avg_establishments_growth_pct double
+  business_density_class varchar
+  growth_class varchar
+
+  indexes {
+    (year_id, municipality_id) [unique]
+  }
+}
+
+Ref: fact_municipality_business_dynamics.year_id > dim_year.year_id
+Ref: fact_municipality_business_dynamics.municipality_id > dim_municipality.municipality_id
