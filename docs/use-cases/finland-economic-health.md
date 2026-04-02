@@ -38,6 +38,12 @@ This use case provides a compact national monitoring view for:
 - `total_personnel_staff_years`
   Annual personnel volume.
 
+- `total_population`
+  Finland's total population.
+
+- `total_deaths`
+  Finland's total deaths.
+
 - `death_rate_per_1000`
   Deaths normalized by population.
 

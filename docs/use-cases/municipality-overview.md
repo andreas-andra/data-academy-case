@@ -46,6 +46,9 @@ This use case provides an easy municipality monitoring layer for:
 - `total_bankruptcies_enterprises`
   Total bankruptcies in the municipality-year.
 
+- `total_bankruptcies_employees`
+  Employees affected by bankruptcies in the municipality-year.
+
 - `bankruptcies_per_1000_establishments`
   Bankruptcy pressure relative to the local business base.
 
