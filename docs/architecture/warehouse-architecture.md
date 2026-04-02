@@ -88,6 +88,9 @@ Examples of modeling problems addressed:
 - `fact_industry_bankruptcy_specialization`
   - grain: `year x municipality x industry`
   - purpose: identify industries that are overrepresented in municipal bankruptcies relative to the national industry bankruptcy structure; implemented as a stricter textbook star with shared dimensions only
+- `fact_municipality_business_dynamics`
+  - grain: `year x municipality`
+  - purpose: track municipality-level business base growth and decline over time, combining establishment counts, personnel, and population into density and growth metrics
 
 ## Industry Labor Impact Model In Context
 

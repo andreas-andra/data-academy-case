@@ -79,6 +79,7 @@ Start here for the current use-case catalog:
 - `docs/use-cases/regional-mortality-and-population-change.md`
 - `docs/use-cases/industry-labor-impact-bankruptcies.md`
 - `docs/use-cases/industry-bankruptcy-specialization.md`
+- `docs/use-cases/municipality-business-dynamics.md`
 
 ## Running dbt
 
