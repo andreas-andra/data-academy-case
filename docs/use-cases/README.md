@@ -30,24 +30,39 @@ These are reusable gold facts with architecture docs and diagram sources, but th
 
 ## Related Dashboard Assets
 
-1. `docs/Industry Labor Impact Ban.pdf`
-   Genie-generated dashboard for the labor impact use case, validated against the gold model.
-2. `docs/Industry Bankruptcy Speci.pdf`
-   Genie-generated dashboard for the specialization use case, validated against the gold model.
+1. `docs/genie-dashboards/bankruptcies.md`
+   Dashboard guidance and prompt assets for the reusable bankruptcy base fact.
+2. `docs/genie-dashboards/bankruptcy-risk-hotspots.md`
+   Dashboard guidance and prompt assets for the bankruptcy hotspots use case.
+3. `docs/genie-dashboards/bankruptcy-trends-by-industry.md`
+   Dashboard guidance and prompt assets for the national industry bankruptcy trend use case.
+4. `docs/genie-dashboards/finland-economic-health.md`
+   Dashboard guidance and prompt assets for the national economic health use case.
+5. `docs/genie-dashboards/industry-bankruptcy-specialization.md`
+   Dashboard guidance and prompt assets for the specialization use case.
+6. `docs/genie-dashboards/industry-labor-impact-bankruptcies.md`
+   Dashboard guidance and prompt assets for the labor impact use case.
+7. `docs/genie-dashboards/municipality-business-resilience.md`
+   Dashboard guidance and prompt assets for the municipality resilience use case.
+8. `docs/genie-dashboards/municipality-overview.md`
+   Dashboard guidance and prompt assets for the municipality overview use case.
+9. `docs/genie-dashboards/population.md`
+   Dashboard guidance and prompt assets for the supporting population and business-base fact.
+10. `docs/genie-dashboards/regional-mortality-and-population-change.md`
+   Dashboard guidance and prompt assets for the mortality and population-change use case.
 
 ## Industry Bankruptcy Specialization Bundle
 
 - use case: `industry-bankruptcy-specialization.md`
 - fact model: `fact_industry_bankruptcy_specialization`
 - diagram source: `docs/diagrams/industry_bankruptcy_specialization.dbml`
-- rendered diagram: `docs/diagrams/industry_bankruptcy_specialization.png`
-- dashboard artifact: `docs/Industry Bankruptcy Speci.pdf`
+- dashboard guidance: `docs/genie-dashboards/industry-bankruptcy-specialization.md`
 
 This bundle documents the municipality-industry specialization use case end to end:
 
 - business question and dashboard guidance in the use-case document
-- textbook star-schema structure in the DBML and rendered diagram
-- validated Genie dashboard output in the PDF asset
+- textbook star-schema structure in the DBML diagram source
+- dashboard prompt and chart guidance in the Genie dashboard document
 
 ## Suggested Structure For Each Use Case
 
