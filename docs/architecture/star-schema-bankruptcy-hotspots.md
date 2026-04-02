@@ -42,3 +42,4 @@ Source: [`docs/diagrams/bankruptcy_risk_hotspots.dbml`](../diagrams/bankruptcy_r
 
 - the fact table exposes only keys and measures in the implemented model
 - descriptive names such as municipality and industry labels live in the dimensions
+- anchored to population silver for consistent municipality coverage with sibling models (`fact_municipality_overview`, `fact_municipality_resilience`)

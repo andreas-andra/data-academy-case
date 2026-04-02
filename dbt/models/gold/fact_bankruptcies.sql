@@ -16,3 +16,5 @@ from b
 left join dim_m dm on b.municipality = dm.municipality_name
 left join dim_i di on b.industry     = di.industry_name
 left join dim_y dy on b.year         = dy.year
+where b.industry != 'Total'
+  and b.industry != 'Industry unknown'
