@@ -9,7 +9,6 @@ Table dim_industry {
 }
 
 Table fact_bankruptcies_by_industry {
-  year int
   year_id int [not null]
   industry_id varchar(32) [not null]
   bankruptcies_enterprises int

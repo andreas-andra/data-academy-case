@@ -9,10 +9,10 @@ Table dim_municipality {
 }
 
 Table fact_population {
-  year int
   year_id int [not null]
   municipality_id varchar(32) [not null]
   population int
+  deaths int
   establishments_count int
   personnel_staff_years int
 

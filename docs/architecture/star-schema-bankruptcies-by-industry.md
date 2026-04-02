@@ -29,8 +29,6 @@ Measures in the fact include:
 
 ## Modeling Note
 
-The implemented fact keeps the natural `year` value as a helper column alongside `year_id`.
-
 Aggregate rows such as `Total` and `Industry unknown` are excluded so the fact preserves a clean industry grain.
 
 ## Diagram

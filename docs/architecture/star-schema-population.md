@@ -24,12 +24,13 @@ Dimension keys in the fact:
 Measures in the fact include:
 
 - population
+- deaths
 - establishments count
 - personnel staff years
 
 ## Modeling Note
 
-The implemented fact keeps the natural `year` value as a helper column alongside `year_id`.
+This fact is primarily a reusable supporting fact for downstream models rather than a standalone dashboard model.
 
 ## Diagram
 
@@ -39,5 +40,4 @@ See:
 
 ## Notes
 
-- this fact does not include deaths or bankruptcies; those are layered in downstream facts
 - it is primarily a reusable supporting fact rather than a standalone dashboard model

@@ -31,9 +31,7 @@ Measures in the fact include:
 
 ## Modeling Note
 
-This fact keeps the natural `year` value as a helper column alongside `year_id`.
-
-That makes the implemented model slightly wider than a strict textbook star, but still dimension-oriented and easy to join consistently.
+This is a presentation-friendly wide fact that combines municipality demographics, business-base metrics, and bankruptcy totals. It is dimension-oriented and easy to join consistently.
 
 ## Diagram
 

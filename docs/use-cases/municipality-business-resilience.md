@@ -43,8 +43,8 @@ This use case helps identify stronger and weaker municipality business environme
 - `yoy_population_pct`, `yoy_establishments_pct`, `yoy_personnel_pct`, `yoy_bankruptcies_pct`
   Core trend indicators behind the composite view.
 
-- `top_bankruptcy_industry`
-  Convenience label for the municipality's top bankruptcy industry that year.
+- `top_industry_id`
+  Foreign key to `dim_industry` for the municipality's top bankruptcy industry that year.
 
 ## Key Modeling Decisions
 
