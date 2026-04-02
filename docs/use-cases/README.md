@@ -4,29 +4,26 @@ This folder contains business-facing documentation for the gold-layer use cases 
 
 ## Current Use Cases
 
-1. `bankruptcy-risk-hotspots.md`
+1. `bankruptcies.md`
+   Reusable municipality-industry bankruptcy detail for totals, industry mix, and downstream derived use cases.
+2. `bankruptcy-risk-hotspots.md`
    Municipality-level bankruptcy pressure relative to local business base.
-2. `bankruptcy-trends-by-industry.md`
+3. `bankruptcy-trends-by-industry.md`
    National industry-level view of which sectors drive bankruptcies over time.
-3. `finland-economic-health.md`
+4. `finland-economic-health.md`
    Finland-wide annual view of bankruptcies, enterprise base, population, and deaths.
-4. `municipality-business-resilience.md`
+5. `municipality-business-resilience.md`
    Municipality-level composite resilience view across business activity, population, and bankruptcy stress.
-5. `municipality-overview.md`
+6. `municipality-overview.md`
    Wide municipality monitoring view combining demographic, business-base, and bankruptcy totals.
-6. `regional-mortality-and-population-change.md`
+7. `population.md`
+   Reusable municipality-level population and business-base fact for demographic context and denominators.
+8. `regional-mortality-and-population-change.md`
    Municipality-level mortality and population-change trend view.
-7. `industry-labor-impact-bankruptcies.md`
+9. `industry-labor-impact-bankruptcies.md`
    Industry- and municipality-level view of how many employees are affected by bankruptcy events.
-8. `industry-bankruptcy-specialization.md`
+10. `industry-bankruptcy-specialization.md`
    Municipality- and industry-level view of where bankruptcy structure is overrepresented relative to the national pattern.
-
-## Supporting Facts Documented In Architecture
-
-- `fact_bankruptcies`
-- `fact_population`
-
-These are reusable gold facts with architecture docs and diagram sources, but they are not currently framed as standalone dashboard use cases.
 
 ## Related Dashboard Assets
 
