@@ -51,11 +51,11 @@ models:
 
   - name: fact_bankruptcies
     description: >
-      Base bankruptcy fact. Grain: year × municipality × industry.
+      Base bankruptcy fact. Grain: year × municipality × industry (classified industries only).
       Exposes bankrupt enterprise and employee counts using shared year, municipality,
-      and industry dimensions. This model preserves the source's full industry coverage,
-      including aggregate rows such as `Total` and `Industry unknown`, so downstream
-      use cases should filter or aggregate carefully.
+      and industry dimensions. Excludes `Total` and `Industry unknown` rows to prevent
+      double-counting. To get municipality totals, sum across all industries for a given
+      municipality and year.
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:

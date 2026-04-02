@@ -101,9 +101,8 @@ Sum `bankruptcies_enterprises` grouped by `dim_industry.industry_name` for year 
 
 - Base table: `fact_bankruptcies`
 - Joins: `dim_year`, `dim_municipality`, `dim_industry`
-- Default filter for municipality totals: `dim_industry.industry_name = 'Total'`
-- Default filter for industry detail: `dim_industry.industry_name NOT IN ('Total', 'Industry unknown')`
-- Never sum across both detail and Total rows — this causes double-counting
+- No industry filtering required — `Total` and `Industry unknown` are excluded at the model level
+- Sum across industries to get municipality totals; sum across all rows to get national totals
 
 ## Metric Usage
 
@@ -111,5 +110,3 @@ Sum `bankruptcies_enterprises` grouped by `dim_industry.industry_name` for year 
 |------|--------|-------|
 | Primary enterprise metric | `bankruptcies_enterprises` | Count of bankrupt enterprises |
 | Primary employee metric | `bankruptcies_employees` | Employees exposed to bankruptcies |
-| Municipality aggregate filter | `dim_industry.industry_name = 'Total'` | Authoritative municipality total |
-| Industry detail filter | `dim_industry.industry_name NOT IN ('Total', 'Industry unknown')` | Clean industry grain |
