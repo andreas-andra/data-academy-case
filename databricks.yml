@@ -1,0 +1,63 @@
+bundle:
+  name: statfin-analytics
+
+workspace:
+  host: https://adb-7405608897358843.3.azuredatabricks.net
+
+targets:
+  dev:
+    default: true
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/statfin-analytics
+
+resources:
+  dashboards:
+    bankruptcies:
+      display_name: "Bankruptcies"
+      file_path: ./databricks/dashboards/bankruptcies.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    bankruptcy-trends-by-industry:
+      display_name: "Bankruptcy Trends by Industry"
+      file_path: ./databricks/dashboards/bankruptcy-trends-by-industry.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    bankruptcy-risk-hotspots:
+      display_name: "Bankruptcy Risk Hotspots"
+      file_path: ./databricks/dashboards/bankruptcy-risk-hotspots.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    finland-economic-health:
+      display_name: "Finland Economic Health"
+      file_path: ./databricks/dashboards/finland-economic-health.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    industry-bankruptcy-specialization:
+      display_name: "Industry Bankruptcy Specialization"
+      file_path: ./databricks/dashboards/industry-bankruptcy-specialization.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    industry-labor-impact-bankruptcies:
+      display_name: "Industry Labor Impact of Bankruptcies"
+      file_path: ./databricks/dashboards/industry-labor-impact-bankruptcies.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    municipality-overview:
+      display_name: "Municipality Overview"
+      file_path: ./databricks/dashboards/municipality-overview.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    municipality-business-resilience:
+      display_name: "Municipality Business Resilience"
+      file_path: ./databricks/dashboards/municipality-business-resilience.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    population:
+      display_name: "Population"
+      file_path: ./databricks/dashboards/population.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
+
+    regional-mortality:
+      display_name: "Regional Mortality & Population Change"
+      file_path: ./databricks/dashboards/regional-mortality.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
