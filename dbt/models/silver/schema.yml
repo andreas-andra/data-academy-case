@@ -48,3 +48,13 @@ models:
         tests: [not_null]
       - name: bankruptcies_enterprises
         tests: [not_null]
+      - name: bankruptcies_employees
+        tests: [not_null]
+      - name: total_establishments
+        description: "Total number of enterprise establishments nationally for the year."
+      - name: total_personnel_staff_years
+        description: "Total personnel in establishments nationally, measured in staff-years."
+      - name: total_population
+        description: "National population for the year."
+      - name: total_deaths
+        description: "National deaths for the year."
