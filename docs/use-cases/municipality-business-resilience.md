@@ -17,7 +17,7 @@ This use case helps identify stronger and weaker municipality business environme
 
 - Model: `fact_municipality_resilience`
 - Grain: one row per `year x municipality`
-- Model style: municipality-level fact with shared dimensions plus convenience helper labels
+- Model style: municipality-level fact with shared dimensions
 
 ## Dimensions
 
@@ -25,6 +25,8 @@ This use case helps identify stronger and weaker municipality business environme
   - `year_id`
 - `dim_municipality`
   - `municipality_id`
+- `dim_industry`
+  - `industry_id` used via `top_industry_id`
 
 ## Core Metrics
 
@@ -61,7 +63,6 @@ Year-over-year metrics are only populated when the municipality has a row in the
 ## Known Caveats
 
 - `resilience_score` is `NULL` in the first year because it depends partly on year-over-year inputs
-- helper labels remain in the fact, so this model is not a strict textbook star
 - users should treat the score as a ranking aid rather than a causal explanation
 
 ## Recommended Dashboard Views
