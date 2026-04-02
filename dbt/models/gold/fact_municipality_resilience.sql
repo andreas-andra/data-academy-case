@@ -1,4 +1,5 @@
 with dim_m as (select * from {{ ref('dim_municipality') }}),
+dim_i as (select * from {{ ref('dim_industry') }}),
 dim_y as (select * from {{ ref('dim_year') }}),
 
 bankruptcy_totals as (
@@ -68,7 +69,7 @@ base as (
             as deaths_per_1000_population
 
     from {{ ref('silver_statfin_population') }} p
-    inner join {{ ref('silver_statfin_enterprise_establishments') }} e
+    left join {{ ref('silver_statfin_enterprise_establishments') }} e
         on p.year = e.year
        and p.municipality = e.municipality
     left join bankruptcy_totals b
@@ -211,10 +212,8 @@ final as (
 )
 
 select
-    f.year,
     dy.year_id,
     dm.municipality_id,
-    f.municipality,
 
     f.population,
     f.deaths,
@@ -237,7 +236,7 @@ select
     round(f.rolling_3y_avg_bankruptcies, 2)    as rolling_3y_avg_bankruptcies,
     round(f.rolling_3y_avg_bankruptcy_rate, 2) as rolling_3y_avg_bankruptcy_rate,
 
-    f.top_bankruptcy_industry,
+    di.industry_id                             as top_industry_id,
     f.top_industry_bankruptcies_enterprises,
     f.top_industry_bankruptcies_employees,
 
@@ -251,5 +250,6 @@ select
     end as municipality_business_class
 
 from final f
-left join dim_m dm on f.municipality = dm.municipality_name
-left join dim_y dy on f.year         = dy.year
+left join dim_m dm on f.municipality        = dm.municipality_name
+left join dim_i di on f.top_bankruptcy_industry = di.industry_name
+left join dim_y dy on f.year                = dy.year

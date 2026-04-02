@@ -20,7 +20,6 @@ with_change as (
 )
 
 select
-    wc.year,
     dy.year_id,
     dm.municipality_id,
     wc.population,
