@@ -12,6 +12,8 @@ models:
         tests: [not_null]
       - name: bankruptcies_enterprises
         tests: [not_null]
+      - name: bankruptcies_employees
+        tests: [not_null]
 
   - name: silver_statfin_enterprise_establishments
     description: "Cleaned enterprise establishment data per municipality"
@@ -22,6 +24,8 @@ models:
         tests: [not_null]
       - name: establishments_count
         tests: [not_null]
+      - name: personnel_staff_years
+        tests: [not_null]
 
   - name: silver_statfin_population
     description: "Cleaned population data per municipality"
@@ -31,6 +35,8 @@ models:
       - name: municipality
         tests: [not_null]
       - name: population
+        tests: [not_null]
+      - name: deaths
         tests: [not_null]
 
   - name: silver_statfin_national

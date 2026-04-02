@@ -197,16 +197,20 @@ final as (
         --   15% population growth, 10% low death pressure.
         -- These were chosen as reasonable starting assumptions and should be
         -- revisited if domain expertise or regression analysis suggests better values.
-        round(
-            (
-                (1 - pr_bankruptcy_rate) * 0.35 +
-                pr_establishment_growth  * 0.20 +
-                pr_personnel_growth      * 0.20 +
-                pr_population_growth     * 0.15 +
-                pr_death_pressure        * 0.10
-            ) * 100,
-            2
-        ) as resilience_score
+        -- NULL for 2020: prev_year is NULL so all yoy percent_rank signals are 0.0 (not NULL),
+        -- making the score misleading. Guard it so callers get a clean NULL instead.
+        case when prev_year is null then null
+             else round(
+                (
+                    (1 - pr_bankruptcy_rate) * 0.35 +
+                    pr_establishment_growth  * 0.20 +
+                    pr_personnel_growth      * 0.20 +
+                    pr_population_growth     * 0.15 +
+                    pr_death_pressure        * 0.10
+                ) * 100,
+                2
+             )
+        end as resilience_score
     from scored
 
 )
@@ -243,9 +247,10 @@ select
     f.resilience_score,
 
     case
-        when f.resilience_score >= 80 then 'Strong'
-        when f.resilience_score >= 60 then 'Stable'
-        when f.resilience_score >= 40 then 'Watchlist'
+        when f.resilience_score is null  then null
+        when f.resilience_score >= 80    then 'Strong'
+        when f.resilience_score >= 60    then 'Stable'
+        when f.resilience_score >= 40    then 'Watchlist'
         else 'Fragile'
     end as municipality_business_class
 

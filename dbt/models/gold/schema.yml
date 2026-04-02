@@ -19,6 +19,8 @@ models:
         tests: [not_null]
       - name: population
         tests: [not_null]
+      - name: deaths
+        tests: [not_null]
 
   - name: dim_municipality
     description: "Dimension table of all municipality values found across population, enterprise, and bankruptcy sources, with stable deterministic surrogate keys"
