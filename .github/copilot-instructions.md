@@ -14,6 +14,7 @@ Route tasks to specialists when the work clearly falls in their domain:
 | Creating use-case docs, DBML diagrams, star-schema docs | `@docs-writer` |
 | Reviewing models for grain issues, key stability, join correctness | `@data-reviewer` |
 | ADF triggers, Databricks notebooks, StatFin API config, ingestion | `@pipeline-ops` |
+| Databricks Genie dashboard prompts, KPIs, chart specs | `@genie-dashboard` |
 
 ### Handle Yourself
 
