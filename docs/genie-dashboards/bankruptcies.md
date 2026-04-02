@@ -85,6 +85,22 @@ Use `dim_industry.industry_name`. Filter `dim_industry.industry_name NOT IN ('To
 
 ---
 
+## Genie Prompts
+
+"Using fact_bankruptcies joined to dim_municipality and dim_year, show the top 15 municipalities by bankruptcies_enterprises for year = 2024 as a descending bar chart. Filter where dim_industry.industry_name = 'Total'."
+
+"Using fact_bankruptcies joined to dim_industry and dim_year, show the top 10 industries by total bankruptcies_enterprises for year = 2024 as a descending bar chart. Filter where dim_industry.industry_name NOT IN ('Total', 'Industry unknown'). Sum bankruptcies_enterprises across all municipalities."
+
+"Using fact_bankruptcies joined to dim_year, show total bankruptcies_enterprises by year as a line chart. Filter where dim_industry.industry_name = 'Total'. Sum across municipalities."
+
+"Using fact_bankruptcies joined to dim_industry and dim_year, show the top 10 industries by total bankruptcies_employees for year = 2024 as a descending bar chart. Filter where dim_industry.industry_name NOT IN ('Total', 'Industry unknown'). Aggregate across municipalities."
+
+"Using fact_bankruptcies joined to dim_municipality, dim_industry, and dim_year, show bankruptcies_enterprises by municipality_name and industry_name for year = 2024 as a heatmap. Filter where dim_industry.industry_name NOT IN ('Total', 'Industry unknown')."
+
+"Using fact_bankruptcies joined to dim_industry and dim_year, show bankruptcies_enterprises over time for the top 5 industries as a multi-line chart. Filter where dim_industry.industry_name NOT IN ('Total', 'Industry unknown'). Identify top 5 industries by total bankruptcies_enterprises across all years. Group by year and industry_name. Aggregate across municipalities."
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_bankruptcies`

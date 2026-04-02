@@ -88,6 +88,26 @@ Use `dim_municipality.municipality_name`. Filter `year_id = latest year`. Sort a
 
 ---
 
+## Genie Prompts
+
+"Using fact_municipality_resilience joined to dim_municipality and dim_year, show resilience_score for the top 15 and bottom 15 municipalities in year = 2024 as a bar chart. Color by municipality_business_class. Filter where resilience_score IS NOT NULL."
+
+"Using fact_municipality_resilience joined to dim_year, show the count of municipalities by municipality_business_class and year as a stacked bar chart. Filter where municipality_business_class IS NOT NULL."
+
+"Using fact_municipality_resilience joined to dim_municipality and dim_year, show bankruptcies_per_1000_establishments vs resilience_score for year = 2024 as a scatter plot. Color by municipality_business_class. Filter where establishments_count > 0."
+
+"Using fact_municipality_resilience joined to dim_industry and dim_year, for year = 2024 and municipality_business_class = 'Fragile', count how many municipalities have each industry as the most common top bankruptcy industry. Join dim_industry on top_industry_id. Show as a descending bar chart with industry_name. Count rows only."
+
+"Using fact_municipality_resilience joined to dim_municipality and dim_year, show resilience_score over time for the 5 municipalities with the lowest resilience_score in year = 2024 as a multi-line chart. Filter where resilience_score IS NOT NULL."
+
+"Using fact_municipality_resilience joined to dim_municipality and dim_year, show the top 20 municipalities by yoy_bankruptcies_pct for year = 2024 as a descending bar chart. Filter where yoy_bankruptcies_pct IS NOT NULL."
+
+"Using fact_municipality_resilience joined to dim_year, how many municipalities are classified as 'Fragile' in year = 2024? Filter where municipality_business_class IS NOT NULL."
+
+"Using fact_municipality_resilience joined to dim_municipality and dim_year, show rolling_3y_avg_bankruptcy_rate over time for the 5 municipalities with the highest bankruptcies_per_1000_establishments in year = 2024 as a multi-line chart."
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_municipality_resilience`

@@ -77,6 +77,24 @@ Sum `personnel_staff_years` where `year_id = latest year`.
 
 ---
 
+## Genie Prompts
+
+"Using fact_population joined to dim_municipality and dim_year, show the top 20 municipalities by population for year = 2024 as a descending bar chart."
+
+"Using fact_population joined to dim_municipality and dim_year, show the top 20 municipalities by establishments_count for year = 2024 as a descending bar chart."
+
+"Using fact_population joined to dim_year, show total population by year as a line chart. Sum population across all municipalities."
+
+"Using fact_population joined to dim_year, show total establishments_count by year as a line chart. Sum establishments_count across all municipalities."
+
+"Using fact_population joined to dim_municipality and dim_year, show population vs establishments_count for year = 2024 as a scatter plot. Label notable outliers with municipality_name."
+
+"Using fact_population joined to dim_municipality and dim_year, show the top 20 municipalities by personnel_staff_years for year = 2024 as a descending bar chart."
+
+"Using fact_population joined to dim_year, show total deaths by year as a line chart. Sum deaths across all municipalities."
+
+---
+
 ## Technical Validation
 
 - Base table: `fact_population`

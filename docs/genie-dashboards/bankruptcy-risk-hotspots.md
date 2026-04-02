@@ -52,3 +52,53 @@ Use `dim_municipality.municipality_name` after joining `dim_municipality`. Sort 
 - Count how many municipality-year rows each industry appears in as `hotspot_industry_id`
 - **Do not** count `bankruptcies_employees` or `bankruptcies_enterprises` for this chart
 - This chart answers: which industries most often appear as the top bankruptcy industry across municipalities
+
+---
+
+## Genie Prompts
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_municipality and dim_year, show the top 15 municipalities by bankruptcies_per_1000_establishments for year = 2024 as a descending bar chart. Color by hotspot_risk_class."
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_year, show the count of municipalities by hotspot_absolute_risk_class and year as a stacked bar chart. Do not use hotspot_risk_class for this chart."
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_municipality and dim_year, show rolling_3y_avg_bankruptcy_rate over time for the 10 municipalities with the highest bankruptcies_per_1000_establishments in year = 2024 as a multi-line chart."
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_industry, count how many municipality-year rows each industry appears in as the hotspot industry across all years. Join dim_industry on hotspot_industry_id for industry names. Show as a descending bar chart. Count rows only, do not sum bankruptcies."
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_year, how many municipalities have hotspot_risk_class = 'Severe hotspot' in year = 2024?"
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_year, what is the average bankruptcies_per_1000_establishments for year = 2024?"
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_municipality and dim_year, show the top 15 municipalities by bankruptcies_per_10000_population for year = 2024 as a descending bar chart."
+
+"Using fact_bankruptcy_risk_hotspots joined to dim_municipality and dim_year, show yoy_bankruptcy_rate_pct for year = 2024 as a bar chart for the top 20 municipalities. Sort descending. Filter where yoy_bankruptcy_rate_pct IS NOT NULL."
+
+---
+
+## Technical Validation
+
+- Base table: `fact_bankruptcy_risk_hotspots`
+- Joins: `dim_year`, `dim_municipality`, `dim_industry` (on `hotspot_industry_id`)
+- Grain: one row per year × municipality
+- `hotspot_risk_class` is ntile(4) within each year — always ~25% of municipalities per band; use for within-year comparisons only
+- `hotspot_absolute_risk_class` uses dataset-wide percentile thresholds — band sizes shift year-over-year as Finland's bankruptcy rate changes; use for cross-year trend analysis
+- `yoy_bankruptcies_pct` and `yoy_bankruptcy_rate_pct` are NULL for the first year in the dataset
+- The `dim_industry` join is on `hotspot_industry_id` — this is the top bankruptcy industry for the municipality-year, not a standard industry grain join
+
+## Metric Usage
+
+| Role | Column | Notes |
+|------|--------|-------|
+| Primary risk metric | `bankruptcies_per_1000_establishments` | Bankruptcy rate per 1000 establishments |
+| Workforce rate | `bankrupt_employees_per_1000_personnel` | Bankrupt employees per 1000 personnel |
+| Population rate | `bankruptcies_per_10000_population` | Alternative normalisation by population |
+| Personnel density | `personnel_per_establishment` | Average staff per establishment |
+| Relative class | `hotspot_risk_class` | Severe/High/Moderate/Low hotspot — ntile(4) within year |
+| Absolute class | `hotspot_absolute_risk_class` | Severe/High/Moderate/Low hotspot — fixed dataset-wide thresholds |
+| Ntile value | `bankruptcy_rate_ntile` | 1=highest risk, 4=lowest; underlies `hotspot_risk_class` |
+| Rolling average | `rolling_3y_avg_bankruptcy_rate` | 3-year smoothed bankruptcy rate |
+| YoY enterprise change | `yoy_bankruptcies_pct` | NULL for first year |
+| YoY rate change | `yoy_bankruptcy_rate_pct` | NULL for first year |
+| Top industry FK | `hotspot_industry_id` | Join to `dim_industry.industry_id` |
+| Top industry enterprises | `hotspot_industry_bankruptcies_enterprises` | Bankrupt enterprises in top industry |
+| Top industry employees | `hotspot_industry_bankruptcies_employees` | Bankrupt employees in top industry |
