@@ -31,10 +31,9 @@ Measures in the fact include:
 
 ## Modeling Note
 
-This is a hybrid star rather than a strict textbook star in the implemented model.
+This is a hybrid star that combines municipality demographics, business base, bankruptcy stress, growth trends, and a weighted resilience score.
 
-- it keeps helper descriptive columns such as `municipality`
-- it also keeps `top_bankruptcy_industry` as a descriptive helper instead of a foreign key
+The top bankruptcy industry is resolved to `top_industry_id`, a foreign key to `dim_industry`, so Genie can join to industry names without embedding labels in the fact.
 
 ## Diagram
 

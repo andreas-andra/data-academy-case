@@ -8,11 +8,14 @@ Table dim_municipality {
   municipality_name varchar [not null]
 }
 
+Table dim_industry {
+  industry_id varchar(32) [pk]
+  industry_name varchar [not null]
+}
+
 Table fact_municipality_resilience {
-  year int
   year_id int [not null]
   municipality_id varchar(32) [not null]
-  municipality varchar
   population int
   deaths int
   establishments_count int
@@ -29,7 +32,7 @@ Table fact_municipality_resilience {
   yoy_bankruptcies_pct decimal(10,2)
   rolling_3y_avg_bankruptcies decimal(10,2)
   rolling_3y_avg_bankruptcy_rate decimal(10,2)
-  top_bankruptcy_industry varchar
+  top_industry_id varchar(32)
   top_industry_bankruptcies_enterprises int
   top_industry_bankruptcies_employees int
   resilience_score decimal(10,2)
@@ -42,3 +45,4 @@ Table fact_municipality_resilience {
 
 Ref: fact_municipality_resilience.year_id > dim_year.year_id
 Ref: fact_municipality_resilience.municipality_id > dim_municipality.municipality_id
+Ref: fact_municipality_resilience.top_industry_id > dim_industry.industry_id

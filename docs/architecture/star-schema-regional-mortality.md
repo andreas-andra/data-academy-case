@@ -31,7 +31,7 @@ Measures in the fact include:
 
 ## Modeling Note
 
-The implemented fact keeps the natural `year` value as a helper column alongside `year_id`.
+Year-over-year population change fields are only populated when the municipality has a row in the immediately prior calendar year.
 
 ## Diagram
 

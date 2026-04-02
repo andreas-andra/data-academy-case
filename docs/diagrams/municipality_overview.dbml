@@ -9,7 +9,6 @@ Table dim_municipality {
 }
 
 Table fact_municipality_overview {
-  year int
   year_id int [not null]
   municipality_id varchar(32) [not null]
   population int

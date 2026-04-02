@@ -4,7 +4,6 @@ Table dim_year {
 }
 
 Table fact_finland_economic_health {
-  year int
   year_id int [not null]
   total_bankruptcies_enterprises int
   total_bankruptcies_employees int

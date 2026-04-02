@@ -31,9 +31,7 @@ Measures in the fact include:
 
 ## Modeling Note
 
-The implemented fact keeps the natural `year` value as a helper column alongside `year_id`.
-
-It also preserves the source's full industry coverage, including rows such as `Total` and `Industry unknown`.
+This is the base bankruptcy detail fact for the warehouse. It preserves the source's full industry coverage, including rows such as `Total` and `Industry unknown`.
 
 ## Diagram
 
