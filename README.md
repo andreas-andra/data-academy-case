@@ -67,7 +67,7 @@ Additional documentation is organized under `docs/`:
 - `docs/diagrams/`: DBML sources and rendered diagrams used in presentations
 - `docs/genie-dashboards/`: dashboard-specific guidance and prompt assets
 
-Start here for the current featured use case:
+Start here for the current use-case catalog:
 
 - `docs/use-cases/bankruptcies.md`
 - `docs/use-cases/bankruptcy-risk-hotspots.md`
