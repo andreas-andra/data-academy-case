@@ -64,6 +64,13 @@
                             "filter": "all",
                             "values": ["*"]
                         }
+                    },
+                    {
+                        "code": "Tiedot",
+                        "selection": {
+                            "filter": "item",
+                            "values": ["Tplukumaara2", "henkmaara2"]
+                        }
                     }
                 ],
                 "response": {
@@ -95,6 +102,13 @@
                         "selection": {
                             "filter": "all",
                             "values": ["*"]
+                        }
+                    },
+                    {
+                        "code": "Tiedot",
+                        "selection": {
+                            "filter": "item",
+                            "values": ["vaesto", "vm11"]
                         }
                     }
                 ],

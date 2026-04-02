@@ -38,5 +38,7 @@ sources:
             description: "Reference year"
           - name: Area
             description: "Municipality or area name"
+          - name: Deaths
+            description: "Number of deaths (vm11)"
           - name: Population
             description: "Population count"
