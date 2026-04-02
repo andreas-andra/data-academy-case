@@ -69,11 +69,13 @@ Additional documentation is organized under `docs/`:
 
 Start here for the current featured use case:
 
+- `docs/use-cases/bankruptcies.md`
 - `docs/use-cases/bankruptcy-risk-hotspots.md`
 - `docs/use-cases/bankruptcy-trends-by-industry.md`
 - `docs/use-cases/finland-economic-health.md`
 - `docs/use-cases/municipality-business-resilience.md`
 - `docs/use-cases/municipality-overview.md`
+- `docs/use-cases/population.md`
 - `docs/use-cases/regional-mortality-and-population-change.md`
 - `docs/use-cases/industry-labor-impact-bankruptcies.md`
 - `docs/use-cases/industry-bankruptcy-specialization.md`
@@ -101,18 +103,18 @@ To generate dbt docs:
 
 ## Use Cases Roadmap
 
-This branch is being used to document multiple small business-facing use cases. A practical target structure is:
+This project documents multiple small business-facing use cases. The current structure is:
 
-1. Bankruptcy Risk Hotspots
-2. Municipality Business Resilience
-3. Finland Economic Health
-4. Bankruptcy Trends by Industry
-5. Municipality Overview
-6. Regional Mortality and Population Change
-7. Industry Labor Impact Bankruptcies
-8. Industry Bankruptcy Specialization
-
-Foundational supporting facts such as `fact_bankruptcies` and `fact_population` are documented in the architecture layer rather than as standalone business use cases.
+1. Bankruptcies
+2. Bankruptcy Risk Hotspots
+3. Bankruptcy Trends by Industry
+4. Finland Economic Health
+5. Municipality Business Resilience
+6. Municipality Overview
+7. Population and Business Base
+8. Regional Mortality and Population Change
+9. Industry Labor Impact Bankruptcies
+10. Industry Bankruptcy Specialization
 
 ## Key Modeling Lessons
 
