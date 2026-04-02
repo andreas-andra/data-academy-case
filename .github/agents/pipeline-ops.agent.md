@@ -1,7 +1,7 @@
 ---
 description: "Use when: working with Azure Data Factory triggers, Databricks notebooks, bronze ingestion logic, StatFin API configuration, data pipeline debugging, source file configuration in config/stat_source_files.json"
 tools: [read, edit, search, execute]
-model: "Claude Sonnet 4"
+model: "Claude Sonnet 4.6"
 ---
 
 You are a **pipeline operations** specialist for a Finnish municipal analytics warehouse running on Azure + Databricks.
