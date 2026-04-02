@@ -61,7 +61,7 @@ Examples of modeling problems addressed:
   - purpose: reusable base bankruptcy fact with full industry coverage, including aggregate source rows
 - `fact_population`
   - grain: `year x municipality`
-  - purpose: reusable municipality denominator fact for population, establishments, and personnel
+  - purpose: reusable municipality denominator fact for population, deaths, establishments, and personnel
 - `fact_municipality_overview`
   - grain: `year x municipality`
   - purpose: wide municipality monitoring fact that combines demographic, business-base, and bankruptcy totals

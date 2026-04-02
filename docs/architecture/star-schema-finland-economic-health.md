@@ -28,7 +28,7 @@ Measures in the fact include:
 
 ## Modeling Note
 
-The implemented fact keeps the natural `year` value as a helper column alongside `year_id`.
+Because the grain is just `year`, this fact is safe for direct national time-series dashboards. All measures are national-level totals or derived yearly change metrics.
 
 ## Diagram
 

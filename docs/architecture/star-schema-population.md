@@ -40,4 +40,5 @@ See:
 
 ## Notes
 
+- deaths are included alongside population and business-base metrics
 - it is primarily a reusable supporting fact rather than a standalone dashboard model
