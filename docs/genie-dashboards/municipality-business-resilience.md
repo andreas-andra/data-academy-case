@@ -49,11 +49,11 @@ Use `dim_municipality.municipality_name`. Filter `year_id = latest year`. Sort a
 - Narrative: Quick visual split of the strongest and most fragile municipalities in the latest year based on the composite resilience score.
 
 ### Chart 2 — Stacked Bar Chart: Municipality Business Class Distribution by Year
-- Filter: no year filter — show all years
+- Filter: `municipality_business_class IS NOT NULL` — excludes 2020 (first year has NULL class because resilience_score depends on prior-year data)
 - X-axis: `dim_year.year`
 - Y-axis: count rows (number of municipalities per class)
 - Stack: `municipality_business_class` (Strong, Stable, Watchlist, Fragile)
-- Narrative: Shows whether Finland's overall municipal health distribution is improving or deteriorating across years.
+- Narrative: Shows whether Finland's overall municipal health distribution is improving or deteriorating across years. 2020 is excluded because resilience_score and municipality_business_class are NULL in that year.
 
 ### Chart 3 — Scatter Plot: Resilience Score vs Bankruptcy Pressure (Latest Year)
 - Filter: `year_id = latest year`, `establishments_count > 0`
@@ -92,7 +92,7 @@ Use `dim_municipality.municipality_name`. Filter `year_id = latest year`. Sort a
 
 "Using fact_municipality_resilience joined to dim_municipality and dim_year, show resilience_score for the top 15 and bottom 15 municipalities in year = 2024 as a bar chart. Color by municipality_business_class. Filter where resilience_score IS NOT NULL."
 
-"Using fact_municipality_resilience joined to dim_year, show the count of municipalities by municipality_business_class and year as a stacked bar chart. Filter where municipality_business_class IS NOT NULL."
+"Using fact_municipality_resilience joined to dim_year, show the count of municipalities by municipality_business_class and year as a stacked bar chart. Filter where municipality_business_class IS NOT NULL. This excludes the first dataset year where class is NULL."
 
 "Using fact_municipality_resilience joined to dim_municipality and dim_year, show bankruptcies_per_1000_establishments vs resilience_score for year = 2024 as a scatter plot. Color by municipality_business_class. Filter where establishments_count > 0."
 
