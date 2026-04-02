@@ -1,0 +1,726 @@
+{
+  "datasets": [
+    {
+      "name": "latest_year_all",
+      "displayName": "Industries — Latest Year",
+      "queryLines": [
+        "SELECT\n",
+        "  di.`industry_name`,\n",
+        "  f.`bankruptcies_enterprises`,\n",
+        "  f.`bankruptcies_employees`,\n",
+        "  f.`share_of_total_pct`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies_by_industry` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  f.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies_by_industry`\n",
+        "    )\n",
+        "ORDER BY\n",
+        "  f.`bankruptcies_enterprises` DESC"
+      ]
+    },
+    {
+      "name": "top5_trends",
+      "displayName": "Top 5 Industries — All Years",
+      "queryLines": [
+        "WITH top5 AS (\n",
+        "  SELECT\n",
+        "    f.`industry_id`\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies_by_industry` f\n",
+        "  GROUP BY\n",
+        "    f.`industry_id`\n",
+        "  ORDER BY\n",
+        "    SUM(f.`bankruptcies_enterprises`) DESC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  f.`year`,\n",
+        "  di.`industry_name`,\n",
+        "  f.`bankruptcies_enterprises`,\n",
+        "  f.`share_of_total_pct`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies_by_industry` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  f.`industry_id` IN (\n",
+        "    SELECT\n",
+        "      `industry_id`\n",
+        "    FROM\n",
+        "      top5\n",
+        "  )\n",
+        "ORDER BY\n",
+        "  f.`year`,\n",
+        "  f.`bankruptcies_enterprises` DESC"
+      ]
+    },
+    {
+      "name": "annual_mix",
+      "displayName": "All Industries — All Years",
+      "queryLines": [
+        "SELECT\n",
+        "  f.`year`,\n",
+        "  di.`industry_name`,\n",
+        "  f.`bankruptcies_enterprises`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies_by_industry` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`industry_id` = di.`industry_id`\n",
+        "ORDER BY\n",
+        "  f.`year`,\n",
+        "  f.`bankruptcies_enterprises` DESC"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "fc9b7f0b",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Bankruptcy Trends by Industry — Latest Year Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_top_enterprise",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "max(bankruptcies_enterprises)",
+                      "expression": "MAX(`bankruptcies_enterprises`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Largest Industry by Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(bankruptcies_enterprises)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Bankruptcies"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_top_employees",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "max(bankruptcies_employees)",
+                      "expression": "MAX(`bankruptcies_employees`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Largest Industry by Employees Affected",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(bankruptcies_employees)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Employees Affected"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_top_share",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "max(share_of_total_pct)",
+                      "expression": "MAX(`share_of_total_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Highest Industry Share of Total",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(share_of_total_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Share %"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_industry_count",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Industries Tracked",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_enterprises_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "bankruptcies_enterprises",
+                      "expression": "`bankruptcies_enterprises`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Industries by Bankruptcies (Latest Year)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_enterprises",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_employees_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "bankruptcies_employees",
+                      "expression": "`bankruptcies_employees`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Industries by Employees Affected (Latest Year)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_employees",
+                  "displayName": "Employees",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_share_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top5_trends",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "share_of_total_pct",
+                      "expression": "`share_of_total_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Industry Share of Total Over Time (Top 5)",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "share_of_total_pct",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Share %",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_enterprises_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top5_trends",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "bankruptcies_enterprises",
+                      "expression": "`bankruptcies_enterprises`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bankruptcies Over Time (Top 5 Industries)",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_enterprises",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_stacked_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "annual_mix",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "bankruptcies_enterprises",
+                      "expression": "`bankruptcies_enterprises`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Annual Bankruptcy Mix by Industry",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_enterprises",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_all",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "bankruptcies_enterprises",
+                      "expression": "`bankruptcies_enterprises`"
+                    },
+                    {
+                      "name": "bankruptcies_employees",
+                      "expression": "`bankruptcies_employees`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Enterprises vs Employees Affected (Latest Year)",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "bankruptcies_enterprises",
+                  "displayName": "Enterprises",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_employees",
+                  "displayName": "Employees",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 18,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

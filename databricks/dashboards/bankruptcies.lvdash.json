@@ -1,0 +1,959 @@
+{
+  "datasets": [
+    {
+      "name": "7d32abc2",
+      "displayName": "Top 15 Municipalities by Bankruptcies (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  SUM(fb.`bankruptcies_enterprises`) as total_bankruptcies\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON fb.`municipality_id` = dm.`municipality_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND di.`industry_name` NOT ILIKE '%total%'\n",
+        "  AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "GROUP BY\n",
+        "  dm.`municipality_name`\n",
+        "ORDER BY\n",
+        "  total_bankruptcies DESC\n",
+        "LIMIT 15"
+      ]
+    },
+    {
+      "name": "869f966d",
+      "displayName": "Top 10 Industries by Bankruptcies (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  di.`industry_name`,\n",
+        "  SUM(fb.`bankruptcies_enterprises`) as total_bankruptcies\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND di.`industry_name` NOT ILIKE '%total%'\n",
+        "  AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "GROUP BY\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  total_bankruptcies DESC\n",
+        "LIMIT 10"
+      ]
+    },
+    {
+      "name": "ff19e024",
+      "displayName": "Top 10 Industries by Employees Affected (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  di.`industry_name`,\n",
+        "  SUM(fb.`bankruptcies_employees`) as total_employees_affected\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND di.`industry_name` NOT ILIKE '%total%'\n",
+        "  AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "GROUP BY\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  total_employees_affected DESC\n",
+        "LIMIT 10"
+      ]
+    },
+    {
+      "name": "83351b90",
+      "displayName": "National Total Bankruptcies Over Time",
+      "queryLines": [
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  SUM(fb.`bankruptcies_enterprises`) as total_bankruptcies\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  di.`industry_name` NOT ILIKE '%total%'\n",
+        "  AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "GROUP BY\n",
+        "  dy.`year`\n",
+        "ORDER BY\n",
+        "  dy.`year`"
+      ]
+    },
+    {
+      "name": "382af987",
+      "displayName": "Bankruptcies Over Time for Top 5 Industries",
+      "queryLines": [
+        "WITH top_industries AS (\n",
+        "  SELECT\n",
+        "    di.`industry_name`,\n",
+        "    SUM(fb.`bankruptcies_enterprises`) as total_bankruptcies\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "      INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "        ON fb.`industry_id` = di.`industry_id`\n",
+        "  WHERE\n",
+        "    di.`industry_name` NOT ILIKE '%total%'\n",
+        "    AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "  GROUP BY\n",
+        "    di.`industry_name`\n",
+        "  ORDER BY\n",
+        "    total_bankruptcies DESC\n",
+        "  LIMIT 5\n",
+        ")\n",
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  di.`industry_name`,\n",
+        "  SUM(fb.`bankruptcies_enterprises`) as total_bankruptcies\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  di.`industry_name` IN (\n",
+        "    SELECT\n",
+        "      `industry_name`\n",
+        "    FROM\n",
+        "      top_industries\n",
+        "  )\n",
+        "GROUP BY\n",
+        "  dy.`year`,\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  dy.`year`,\n",
+        "  total_bankruptcies DESC"
+      ]
+    },
+    {
+      "name": "b5bcb29b",
+      "displayName": "Municipality × Industry Bankruptcies Heatmap (Latest Year)",
+      "queryLines": [
+        "WITH top_municipalities AS (\n",
+        "  SELECT\n",
+        "    dm.`municipality_name`,\n",
+        "    SUM(fb.`bankruptcies_enterprises`) as total\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "      INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "        ON fb.`year_id` = dy.`year_id`\n",
+        "      INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "        ON fb.`municipality_id` = dm.`municipality_id`\n",
+        "      INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "        ON fb.`industry_id` = di.`industry_id`\n",
+        "  WHERE\n",
+        "    dy.`year`\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(`year`)\n",
+        "        FROM\n",
+        "          `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "      )\n",
+        "    AND di.`industry_name` NOT ILIKE '%total%'\n",
+        "    AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "  GROUP BY\n",
+        "    dm.`municipality_name`\n",
+        "  ORDER BY\n",
+        "    total DESC\n",
+        "  LIMIT 15\n",
+        ")\n",
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  di.`industry_name`,\n",
+        "  SUM(fb.`bankruptcies_enterprises`) as bankruptcies\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON fb.`municipality_id` = dm.`municipality_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND dm.`municipality_name` IN (\n",
+        "    SELECT\n",
+        "      `municipality_name`\n",
+        "    FROM\n",
+        "      top_municipalities\n",
+        "  )\n",
+        "  AND di.`industry_name` NOT ILIKE '%total%'\n",
+        "  AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "GROUP BY\n",
+        "  dm.`municipality_name`,\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  dm.`municipality_name`,\n",
+        "  bankruptcies DESC"
+      ]
+    },
+    {
+      "name": "kpi_national_summary",
+      "displayName": "National KPI Summary (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  SUM(fb.`bankruptcies_enterprises`) as total_bankruptcies,\n",
+        "  SUM(fb.`bankruptcies_employees`) as total_employees_affected,\n",
+        "  COUNT(DISTINCT\n",
+        "    CASE\n",
+        "      WHEN fb.`bankruptcies_enterprises` > 0 THEN fb.`municipality_id`\n",
+        "    END\n",
+        "  ) as municipalities_with_bankruptcies\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND di.`industry_name` NOT ILIKE '%total%'\n",
+        "  AND di.`industry_name` NOT ILIKE '%unknown%'"
+      ]
+    },
+    {
+      "name": "kpi_top_industry",
+      "displayName": "Most Affected Industry (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  di.`industry_name`,\n",
+        "  SUM(fb.`bankruptcies_enterprises`) as total_bankruptcies\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcies` fb\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON fb.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON fb.`industry_id` = di.`industry_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "  AND di.`industry_name` NOT ILIKE '%total%'\n",
+        "  AND di.`industry_name` NOT ILIKE '%unknown%'\n",
+        "GROUP BY\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  total_bankruptcies DESC\n",
+        "LIMIT 1"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "dcd5d690",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Bankruptcies in Finland — Latest Year Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_total_bankruptcies",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_national_summary",
+                  "fields": [
+                    {
+                      "name": "total_bankruptcies",
+                      "expression": "`total_bankruptcies`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_bankruptcies",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Total Bankruptcies"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_employees_affected",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_national_summary",
+                  "fields": [
+                    {
+                      "name": "total_employees_affected",
+                      "expression": "`total_employees_affected`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Employees Affected",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_employees_affected",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Employees Affected"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_municipalities",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_national_summary",
+                  "fields": [
+                    {
+                      "name": "municipalities_with_bankruptcies",
+                      "expression": "`municipalities_with_bankruptcies`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Municipalities with Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "municipalities_with_bankruptcies",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Municipalities"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_top_industry",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_top_industry",
+                  "fields": [
+                    {
+                      "name": "total_bankruptcies",
+                      "expression": "`total_bankruptcies`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Most Affected Industry",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "total_bankruptcies",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "compact"
+                  },
+                  "displayName": "Bankruptcies"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 1,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top15_municipalities",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "7d32abc2",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "total_bankruptcies",
+                      "expression": "`total_bankruptcies`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 15 Municipalities by Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "total_bankruptcies",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top10_industries",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "869f966d",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "total_bankruptcies",
+                      "expression": "`total_bankruptcies`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 10 Industries by Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "total_bankruptcies",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_national_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "83351b90",
+                  "fields": [
+                    {
+                      "name": "total_bankruptcies",
+                      "expression": "`total_bankruptcies`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "National Total Bankruptcies Over Time",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_bankruptcies",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "total_bankruptcies",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_employees_by_industry",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ff19e024",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "total_employees_affected",
+                      "expression": "`total_employees_affected`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 10 Industries by Employees Affected",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "total_employees_affected",
+                  "displayName": "Employees Affected",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_heatmap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "b5bcb29b",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "sum(bankruptcies)",
+                      "expression": "SUM(`bankruptcies`)"
+                    }
+                  ],
+                  "cubeGroupingSets": {
+                    "sets": [
+                      {
+                        "fieldNames": [
+                          "municipality_name"
+                        ]
+                      },
+                      {
+                        "fieldNames": [
+                          "industry_name"
+                        ]
+                      }
+                    ]
+                  },
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "direction": "ASC",
+                      "expression": "`industry_name`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Municipality × Industry Bankruptcies",
+                "showTitle": true
+              },
+              "widgetType": "pivot",
+              "encodings": {
+                "rows": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayTotal": true,
+                    "displayName": "Municipality"
+                  }
+                ],
+                "columns": [
+                  {
+                    "fieldName": "industry_name",
+                    "displayTotal": true,
+                    "displayName": "Industry"
+                  }
+                ],
+                "cell": {
+                  "type": "multi-cell",
+                  "fields": [
+                    {
+                      "fieldName": "sum(bankruptcies)",
+                      "cellType": "text",
+                      "displayName": "Bankruptcies",
+                      "style": {
+                        "type": "color-scale",
+                        "backgroundColor": {
+                          "scale": {
+                            "type": "quantitative",
+                            "colorRamp": {
+                              "mode": "scheme",
+                              "scheme": "orangered"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top5_industries_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "382af987",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "total_bankruptcies",
+                      "expression": "`total_bankruptcies`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bankruptcies Over Time — Top 5 Industries",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "total_bankruptcies",
+                  "displayName": "Bankruptcies",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 26,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

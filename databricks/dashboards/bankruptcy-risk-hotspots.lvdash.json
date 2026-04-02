@@ -1,0 +1,659 @@
+{
+  "datasets": [
+    {
+      "name": "kpi_summary",
+      "displayName": "KPI Summary (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  COUNT(\n",
+        "    CASE\n",
+        "      WHEN f.`hotspot_risk_class` = 'Severe hotspot' THEN 1\n",
+        "    END\n",
+        "  ) as severe_hotspot_count,\n",
+        "  ROUND(AVG(f.`bankruptcies_per_1000_establishments`), 2) as avg_bankruptcy_rate\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcy_risk_hotspots` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )"
+      ]
+    },
+    {
+      "name": "kpi_top_municipality",
+      "displayName": "Top Municipality (Latest Year)",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`bankruptcies_per_1000_establishments`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcy_risk_hotspots` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "ORDER BY\n",
+        "  f.`bankruptcies_per_1000_establishments` DESC\n",
+        "LIMIT 1"
+      ]
+    },
+    {
+      "name": "chart_top15",
+      "displayName": "Top 15 Municipalities by Bankruptcy Rate",
+      "queryLines": [
+        "SELECT\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`bankruptcies_per_1000_establishments`,\n",
+        "  f.`hotspot_risk_class`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcy_risk_hotspots` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  dy.`year`\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(`year`)\n",
+        "      FROM\n",
+        "        `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "    )\n",
+        "ORDER BY\n",
+        "  f.`bankruptcies_per_1000_establishments` DESC\n",
+        "LIMIT 15"
+      ]
+    },
+    {
+      "name": "chart_risk_dist",
+      "displayName": "Absolute Risk Class Distribution by Year",
+      "queryLines": [
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  f.`hotspot_absolute_risk_class`,\n",
+        "  COUNT(*) as municipality_count\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcy_risk_hotspots` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "GROUP BY\n",
+        "  dy.`year`,\n",
+        "  f.`hotspot_absolute_risk_class`\n",
+        "ORDER BY\n",
+        "  dy.`year`,\n",
+        "  f.`hotspot_absolute_risk_class`"
+      ]
+    },
+    {
+      "name": "chart_rolling_avg",
+      "displayName": "Rolling 3Y Avg — Top 10 Municipalities",
+      "queryLines": [
+        "WITH top_municipalities AS (\n",
+        "  SELECT\n",
+        "    f.`municipality_id`\n",
+        "  FROM\n",
+        "    `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcy_risk_hotspots` f\n",
+        "      INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "        ON f.`year_id` = dy.`year_id`\n",
+        "  WHERE\n",
+        "    dy.`year`\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(`year`)\n",
+        "        FROM\n",
+        "          `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year`\n",
+        "      )\n",
+        "  ORDER BY\n",
+        "    f.`bankruptcies_per_1000_establishments` DESC\n",
+        "  LIMIT 10\n",
+        ")\n",
+        "SELECT\n",
+        "  dy.`year`,\n",
+        "  dm.`municipality_name`,\n",
+        "  f.`rolling_3y_avg_bankruptcy_rate`\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcy_risk_hotspots` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_year` dy\n",
+        "      ON f.`year_id` = dy.`year_id`\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_municipality` dm\n",
+        "      ON f.`municipality_id` = dm.`municipality_id`\n",
+        "WHERE\n",
+        "  f.`municipality_id` IN (\n",
+        "    SELECT\n",
+        "      `municipality_id`\n",
+        "    FROM\n",
+        "      top_municipalities\n",
+        "  )\n",
+        "ORDER BY\n",
+        "  dy.`year`,\n",
+        "  dm.`municipality_name`"
+      ]
+    },
+    {
+      "name": "chart_industry_freq",
+      "displayName": "Hotspot Industry Frequency",
+      "queryLines": [
+        "SELECT\n",
+        "  di.`industry_name`,\n",
+        "  COUNT(*) as frequency\n",
+        "FROM\n",
+        "  `data_academy_fi_06`.`andreas_statfin_gold`.`fact_bankruptcy_risk_hotspots` f\n",
+        "    INNER JOIN `data_academy_fi_06`.`andreas_statfin_gold`.`dim_industry` di\n",
+        "      ON f.`hotspot_industry_id` = di.`industry_id`\n",
+        "GROUP BY\n",
+        "  di.`industry_name`\n",
+        "ORDER BY\n",
+        "  frequency DESC"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "0b42e7fc",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Bankruptcy Risk Hotspots — Latest Year Overview"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_severe",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_summary",
+                  "fields": [
+                    {
+                      "name": "severe_hotspot_count",
+                      "expression": "`severe_hotspot_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Severe Hotspot Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "severe_hotspot_count",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Severe Hotspot Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_avg_rate",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_summary",
+                  "fields": [
+                    {
+                      "name": "avg_bankruptcy_rate",
+                      "expression": "`avg_bankruptcy_rate`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Avg Bankruptcies per 1,000 Establishments",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg_bankruptcy_rate",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg Bankruptcy Rate"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 1,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_top_muni",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "kpi_top_municipality",
+                  "fields": [
+                    {
+                      "name": "bankruptcies_per_1000_establishments",
+                      "expression": "`bankruptcies_per_1000_establishments`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Highest Risk Municipality",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "bankruptcies_per_1000_establishments",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Bankruptcy Rate"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 1,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_top15_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "chart_top15",
+                  "fields": [
+                    {
+                      "name": "hotspot_risk_class",
+                      "expression": "`hotspot_risk_class`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "bankruptcies_per_1000_establishments",
+                      "expression": "`bankruptcies_per_1000_establishments`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 15 Municipalities by Bankruptcy Rate",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "bankruptcies_per_1000_establishments",
+                  "displayName": "Bankruptcies per 1,000 Establishments",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "hotspot_risk_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Risk Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Severe hotspot",
+                        "color": "#d32f2f"
+                      },
+                      {
+                        "value": "High hotspot",
+                        "color": "#f57c00"
+                      },
+                      {
+                        "value": "Moderate hotspot",
+                        "color": "#fbc02d"
+                      },
+                      {
+                        "value": "Low hotspot",
+                        "color": "#388e3c"
+                      }
+                    ]
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_industry_freq",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "chart_industry_freq",
+                  "fields": [
+                    {
+                      "name": "industry_name",
+                      "expression": "`industry_name`"
+                    },
+                    {
+                      "name": "frequency",
+                      "expression": "`frequency`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Hotspot Industry Frequency",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "industry_name",
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "frequency",
+                  "displayName": "Frequency",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "industry_name",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Industry",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_risk_dist",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "chart_risk_dist",
+                  "fields": [
+                    {
+                      "name": "hotspot_absolute_risk_class",
+                      "expression": "`hotspot_absolute_risk_class`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "municipality_count",
+                      "expression": "`municipality_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Absolute Risk Class Distribution by Year",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "municipality_count",
+                  "displayName": "Municipality Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "hotspot_absolute_risk_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Risk Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Severe hotspot",
+                        "color": "#d32f2f"
+                      },
+                      {
+                        "value": "High hotspot",
+                        "color": "#f57c00"
+                      },
+                      {
+                        "value": "Moderate hotspot",
+                        "color": "#fbc02d"
+                      },
+                      {
+                        "value": "Low hotspot",
+                        "color": "#388e3c"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart_rolling_avg",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "chart_rolling_avg",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "rolling_3y_avg_bankruptcy_rate",
+                      "expression": "`rolling_3y_avg_bankruptcy_rate`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Rolling 3Y Avg Bankruptcy Rate — Top 10 Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "rolling_3y_avg_bankruptcy_rate",
+                  "displayName": "Rolling 3Y Avg Rate",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
