@@ -11,6 +11,20 @@
             "filter": "item",
             "values": ["2020", "2021", "2022", "2023", "2024"]
           }
+        },
+        {
+          "code": "Toimiala_luok",
+          "selection": {
+            "filter": "all",
+            "values": ["*"]
+          }
+        },
+        {
+          "code": "Kunta",
+          "selection": {
+            "filter": "all",
+            "values": ["*"]
+          }
         }
       ],
       "response": { "format": "csv" }
