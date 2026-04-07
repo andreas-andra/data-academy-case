@@ -58,6 +58,7 @@ This avoids unstable surrogate keys during rebuilds and makes the data model eas
 - `fact_industry_labor_impact_bankruptcies`: municipality-industry labor impact fact
 - `fact_industry_bankruptcy_specialization`: municipality-industry specialization fact
 - `fact_municipality_business_dynamics`: municipality-level business dynamics with YoY changes and density classifications
+- `fact_economic_shock_exposure`: municipality-level economic shock exposure index via rolling 3-year volatility (CV) across bankruptcy, business, and demographic dimensions
 
 ## Documentation
 
@@ -81,6 +82,7 @@ Start here for the current use-case catalog:
 - `docs/use-cases/industry-labor-impact-bankruptcies.md`
 - `docs/use-cases/industry-bankruptcy-specialization.md`
 - `docs/use-cases/municipality-business-dynamics.md`
+- `docs/use-cases/economic-shock-exposure.md`
 
 ## Running dbt
 
@@ -117,6 +119,8 @@ This project documents multiple small business-facing use cases. The current str
 8. Regional Mortality and Population Change
 9. Industry Labor Impact Bankruptcies
 10. Industry Bankruptcy Specialization
+11. Municipality Business Dynamics
+12. Economic Shock Exposure Index
 
 ## Key Modeling Lessons
 

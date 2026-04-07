@@ -66,3 +66,8 @@ resources:
       display_name: "Municipality Business Dynamics"
       file_path: ./databricks/dashboards/municipality-business-dynamics.lvdash.json
       warehouse_id: 93108fdbef48ca6e
+
+    economic-shock-exposure:
+      display_name: "Economic Shock Exposure Index"
+      file_path: ./databricks/dashboards/economic-shock-exposure.lvdash.json
+      warehouse_id: 93108fdbef48ca6e
