@@ -1,0 +1,1038 @@
+{
+  "datasets": [
+    {
+      "name": "all_years_composite",
+      "displayName": "Resilience Distribution All Years",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  fact_economic_shock_exposure\n",
+        "WHERE\n",
+        "  shock_exposure_composite IS NOT NULL"
+      ],
+      "catalog": "data_academy_fi_06",
+      "schema": "andreas_statfin_gold"
+    },
+    {
+      "name": "heatmap_top20",
+      "displayName": "Heatmap Top 20 Bankruptcy CV",
+      "queryLines": [
+        "WITH top_munis AS (\n",
+        "  SELECT\n",
+        "    municipality_name\n",
+        "  FROM\n",
+        "    fact_economic_shock_exposure\n",
+        "  WHERE\n",
+        "    bankruptcy_rate_cv_3y IS NOT NULL\n",
+        "  GROUP BY\n",
+        "    municipality_name\n",
+        "  ORDER BY\n",
+        "    AVG(bankruptcy_rate_cv_3y) DESC\n",
+        "  LIMIT 20\n",
+        ")\n",
+        "SELECT\n",
+        "  f.*\n",
+        "FROM\n",
+        "  fact_economic_shock_exposure f\n",
+        "    INNER JOIN top_munis t\n",
+        "      ON f.municipality_name = t.municipality_name\n",
+        "WHERE\n",
+        "  f.bankruptcy_rate_cv_3y IS NOT NULL"
+      ],
+      "catalog": "data_academy_fi_06",
+      "schema": "andreas_statfin_gold"
+    },
+    {
+      "name": "trend_municipalities",
+      "displayName": "Municipality Trend",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  fact_economic_shock_exposure\n",
+        "WHERE\n",
+        "  shock_exposure_composite IS NOT NULL\n",
+        "  AND array_contains(:municipality_names, municipality_name)"
+      ],
+      "parameters": [
+        {
+          "displayName": "Municipality Names",
+          "keyword": "municipality_names",
+          "dataType": "STRING",
+          "complexType": "MULTI",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "Rautavaara"
+                },
+                {
+                  "value": "Urjala"
+                },
+                {
+                  "value": "Halsua"
+                },
+                {
+                  "value": "Orivesi"
+                },
+                {
+                  "value": "Merijärvi"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "catalog": "data_academy_fi_06",
+      "schema": "andreas_statfin_gold"
+    },
+    {
+      "name": "latest_year_composite",
+      "displayName": "Latest Year Composite",
+      "queryLines": [
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  fact_economic_shock_exposure\n",
+        "WHERE\n",
+        "  year\n",
+        "    = (\n",
+        "      SELECT\n",
+        "        MAX(year)\n",
+        "      FROM\n",
+        "        fact_economic_shock_exposure\n",
+        "    )\n",
+        "  AND shock_exposure_composite IS NOT NULL"
+      ],
+      "catalog": "data_academy_fi_06",
+      "schema": "andreas_statfin_gold"
+    },
+    {
+      "name": "top_bottom_15",
+      "displayName": "Top & Bottom 15 by Exposure",
+      "queryLines": [
+        "WITH latest AS (\n",
+        "  SELECT\n",
+        "    *,\n",
+        "    ROW_NUMBER() OVER (ORDER BY shock_exposure_composite DESC) as rank_high,\n",
+        "    ROW_NUMBER() OVER (ORDER BY shock_exposure_composite ASC) as rank_low\n",
+        "  FROM\n",
+        "    fact_economic_shock_exposure\n",
+        "  WHERE\n",
+        "    year\n",
+        "      = (\n",
+        "        SELECT\n",
+        "          MAX(year)\n",
+        "        FROM\n",
+        "          fact_economic_shock_exposure\n",
+        "      )\n",
+        "    AND shock_exposure_composite IS NOT NULL\n",
+        ")\n",
+        "SELECT\n",
+        "  *\n",
+        "FROM\n",
+        "  latest\n",
+        "WHERE\n",
+        "  rank_high <= 15\n",
+        "  OR rank_low <= 15"
+      ],
+      "catalog": "data_academy_fi_06",
+      "schema": "andreas_statfin_gold"
+    },
+    {
+      "name": "cv_breakdown",
+      "displayName": "CV Breakdown Crisis-prone",
+      "queryLines": [
+        "SELECT\n",
+        "  component,\n",
+        "  avg_cv\n",
+        "FROM\n",
+        "  (\n",
+        "    SELECT\n",
+        "      AVG(bankruptcy_rate_cv_3y) as `Bankruptcy Rate (35%)`,\n",
+        "      AVG(employee_impact_cv_3y) as `Employee Impact (25%)`,\n",
+        "      AVG(business_churn_cv_3y) as `Business Churn (20%)`,\n",
+        "      AVG(personnel_cv_3y) as `Personnel (10%)`,\n",
+        "      AVG(demographic_stability_cv_3y) as `Demographic Stability (10%)`\n",
+        "    FROM\n",
+        "      fact_economic_shock_exposure\n",
+        "    WHERE\n",
+        "      year\n",
+        "        = (\n",
+        "          SELECT\n",
+        "            MAX(year)\n",
+        "          FROM\n",
+        "            fact_economic_shock_exposure\n",
+        "        )\n",
+        "      AND shock_resilience_class = 'Crisis-prone'\n",
+        "  )\n",
+        "    UNPIVOT (\n",
+        "      avg_cv FOR component IN (\n",
+        "        `Bankruptcy Rate (35%)`,\n",
+        "        `Employee Impact (25%)`,\n",
+        "        `Business Churn (20%)`,\n",
+        "        `Personnel (10%)`,\n",
+        "        `Demographic Stability (10%)`\n",
+        "      )\n",
+        "    )"
+      ],
+      "catalog": "data_academy_fi_06",
+      "schema": "andreas_statfin_gold"
+    },
+    {
+      "name": "municipality_lookup",
+      "displayName": "Municipality Lookup",
+      "queryLines": [
+        "SELECT DISTINCT\n",
+        "  municipality_name\n",
+        "FROM\n",
+        "  fact_economic_shock_exposure\n",
+        "WHERE\n",
+        "  shock_exposure_composite IS NOT NULL\n",
+        "ORDER BY\n",
+        "  municipality_name"
+      ],
+      "catalog": "data_academy_fi_06",
+      "schema": "andreas_statfin_gold"
+    }
+  ],
+  "pages": [
+    {
+      "name": "d458f097",
+      "displayName": "Shock Exposure Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Economic Shock Exposure Index\n",
+                "Identifying Finnish municipalities most vulnerable to sudden economic shocks through rolling 3-year volatility analysis (2022–2024)."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_crisis_prone",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_composite",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`shock_resilience_class` IN ('Crisis-prone')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Crisis-prone Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_high_resilience",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_composite",
+                  "fields": [
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`shock_resilience_class` IN ('High Resilience')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "High Resilience Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(*)",
+                  "displayName": "Count"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_avg_composite",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_composite",
+                  "fields": [
+                    {
+                      "name": "avg(shock_exposure_composite)",
+                      "expression": "AVG(`shock_exposure_composite`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Avg Shock Exposure Composite",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(shock_exposure_composite)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Avg Composite"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_most_volatile",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_composite",
+                  "fields": [
+                    {
+                      "name": "max(shock_exposure_composite)",
+                      "expression": "MAX(`shock_exposure_composite`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Peak Exposure (Most Volatile)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "max(shock_exposure_composite)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Max Composite"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "chart1_top_bottom",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_bottom_15",
+                  "fields": [
+                    {
+                      "name": "shock_resilience_class",
+                      "expression": "`shock_resilience_class`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "max(shock_exposure_composite)",
+                      "expression": "MAX(`shock_exposure_composite`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Top 15 & Bottom 15 Municipalities by Shock Exposure (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "municipality_name",
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y-reversed"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "max(shock_exposure_composite)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Shock Exposure Composite",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "shock_resilience_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Resilience Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "High Resilience",
+                        "color": "#2ca02c"
+                      },
+                      {
+                        "value": "Moderate Resilience",
+                        "color": "#1f77b4"
+                      },
+                      {
+                        "value": "Fragile",
+                        "color": "#ff7f0e"
+                      },
+                      {
+                        "value": "Crisis-prone",
+                        "color": "#d62728"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "chart2_distribution",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "all_years_composite",
+                  "fields": [
+                    {
+                      "name": "shock_resilience_class",
+                      "expression": "`shock_resilience_class`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Resilience Class Distribution by Year",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "displayName": "Municipality Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "shock_resilience_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Resilience Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "High Resilience",
+                        "color": "#2ca02c"
+                      },
+                      {
+                        "value": "Moderate Resilience",
+                        "color": "#1f77b4"
+                      },
+                      {
+                        "value": "Fragile",
+                        "color": "#ff7f0e"
+                      },
+                      {
+                        "value": "Crisis-prone",
+                        "color": "#d62728"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart3_scatter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "latest_year_composite",
+                  "fields": [
+                    {
+                      "name": "shock_resilience_class",
+                      "expression": "`shock_resilience_class`"
+                    },
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "bankruptcy_rate_per_1000",
+                      "expression": "`bankruptcy_rate_per_1000`"
+                    },
+                    {
+                      "name": "shock_exposure_composite",
+                      "expression": "`shock_exposure_composite`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "IN_RANGE(`establishments_count`, 1, NULL)"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Shock Exposure vs Bankruptcy Rate (2024)",
+                "showTitle": true
+              },
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "bankruptcy_rate_per_1000",
+                  "displayName": "Bankruptcy Rate per 1000",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "shock_exposure_composite",
+                  "displayName": "Shock Exposure Composite",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "shock_resilience_class",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Resilience Class",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "High Resilience",
+                        "color": "#2ca02c"
+                      },
+                      {
+                        "value": "Moderate Resilience",
+                        "color": "#1f77b4"
+                      },
+                      {
+                        "value": "Fragile",
+                        "color": "#ff7f0e"
+                      },
+                      {
+                        "value": "Crisis-prone",
+                        "color": "#d62728"
+                      }
+                    ]
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayName": "Municipality"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 13,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_municipality",
+            "queries": [
+              {
+                "name": "dashboards/01f132540baf11f79d1daef9ece29652/datasets/01f1325508aa1f47a2d53a271b5d5394_municipality_name",
+                "query": {
+                  "datasetName": "municipality_lookup",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "municipality_name_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "parameter_dashboards/01f132540baf11f79d1daef9ece29652/datasets/01f1325474b31c2bb843f10119ed3872_municipality_names",
+                "query": {
+                  "datasetName": "trend_municipalities",
+                  "parameters": [
+                    {
+                      "name": "municipality_names",
+                      "keyword": "municipality_names"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Select Municipalities",
+                "showTitle": true
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "municipality_name",
+                    "queryName": "dashboards/01f132540baf11f79d1daef9ece29652/datasets/01f1325508aa1f47a2d53a271b5d5394_municipality_name"
+                  },
+                  {
+                    "parameterName": "municipality_names",
+                    "queryName": "parameter_dashboards/01f132540baf11f79d1daef9ece29652/datasets/01f1325474b31c2bb843f10119ed3872_municipality_names"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 20,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "chart4_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "trend_municipalities",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "shock_exposure_composite",
+                      "expression": "`shock_exposure_composite`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Shock Exposure Trend by Municipality",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "year",
+                  "displayName": "Year",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "shock_exposure_composite",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Shock Exposure Composite",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "municipality_name",
+                  "legend": {
+                    "position": "bottom"
+                  },
+                  "displayName": "Municipality",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 22,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart5_heatmap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "heatmap_top20",
+                  "fields": [
+                    {
+                      "name": "municipality_name",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "name": "year",
+                      "expression": "`year`"
+                    },
+                    {
+                      "name": "avg(bankruptcy_rate_cv_3y)",
+                      "expression": "AVG(`bankruptcy_rate_cv_3y`)"
+                    }
+                  ],
+                  "cubeGroupingSets": {
+                    "sets": [
+                      {
+                        "fieldNames": [
+                          "municipality_name"
+                        ]
+                      },
+                      {
+                        "fieldNames": [
+                          "year"
+                        ]
+                      }
+                    ]
+                  },
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "ASC",
+                      "expression": "`municipality_name`"
+                    },
+                    {
+                      "direction": "ASC",
+                      "expression": "`year`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Bankruptcy Rate CV — Top 20 Municipalities by Year",
+                "showTitle": true
+              },
+              "widgetType": "pivot",
+              "encodings": {
+                "rows": [
+                  {
+                    "fieldName": "municipality_name",
+                    "displayTotal": false,
+                    "displayName": "Municipality"
+                  }
+                ],
+                "columns": [
+                  {
+                    "fieldName": "year",
+                    "displayTotal": false,
+                    "displayName": "Year"
+                  }
+                ],
+                "cell": {
+                  "type": "multi-cell",
+                  "fields": [
+                    {
+                      "fieldName": "avg(bankruptcy_rate_cv_3y)",
+                      "cellType": "text",
+                      "displayName": "Bankruptcy Rate CV (3y)",
+                      "style": {
+                        "type": "color-scale",
+                        "backgroundColor": {
+                          "scale": {
+                            "type": "quantitative",
+                            "colorRamp": {
+                              "mode": "scheme",
+                              "scheme": "orangered"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 22,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "chart6_cv_breakdown",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "cv_breakdown",
+                  "fields": [
+                    {
+                      "name": "component",
+                      "expression": "`component`"
+                    },
+                    {
+                      "name": "max(avg_cv)",
+                      "expression": "MAX(`avg_cv`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Avg CV Component Breakdown — Crisis-prone Municipalities (2024)",
+                "showTitle": true
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "component",
+                  "displayName": "Component",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "max(avg_cv)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 3
+                    },
+                    "abbreviation": "none"
+                  },
+                  "displayName": "Average CV",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "component",
+                  "legend": {
+                    "hide": true
+                  },
+                  "displayName": "Component",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 29,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "visualizationColors": [
+        "#d62728",
+        "#ff7f0e",
+        "#1f77b4",
+        "#2ca02c",
+        "#9467bd",
+        "#8c564b",
+        "#e377c2",
+        "#7f7f7f",
+        "#bcbd22",
+        "#17becf"
+      ],
+      "widgetHeaderAlignment": "LEFT",
+      "fontFamily": "Trebuchet MS"
+    },
+    "applyModeEnabled": false
+  }
+}

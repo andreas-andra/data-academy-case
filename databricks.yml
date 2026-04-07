@@ -69,5 +69,5 @@ resources:
 
     economic-shock-exposure:
       display_name: "Economic Shock Exposure Index"
-      file_path: ./databricks/dashboards/economic-shock-exposure.lvdash.json
+      file_path: ./databricks/dashboards/economic-shock-exposure-index.lvdash.json
       warehouse_id: 93108fdbef48ca6e
