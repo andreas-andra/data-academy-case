@@ -376,3 +376,61 @@ models:
         description: "Very high / High / Moderate / Low specialization among positive-bankruptcy rows within each year, plus No bankruptcies for rows with zero bankruptcies."
       - name: specialization_absolute_class
         description: "No bankruptcies / Low / Moderate / High / Very high specialization using fixed dataset-wide percent_rank bands across positive-bankruptcy rows only. Use this for cross-year trend analysis."
+
+  - name: fact_economic_shock_exposure
+    description: >
+      Economic shock exposure index measuring municipality vulnerability to sudden economic
+      disruptions via rolling 3-year coefficient of variation across bankruptcy, business,
+      and demographic volatility dimensions. Grain: one row per year per municipality.
+      CV measures and shock_exposure_composite are NULL when fewer than 3 calendar years of
+      data exist for a municipality. shock_resilience_ntile uses ntile(4) partitioned by year
+      on shock_exposure_composite ASC: 1 = most resilient, 4 = most fragile (Crisis-prone).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns: [year_id, municipality_id]
+    columns:
+      - name: year_id
+        description: "Foreign key to dim_year."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_year')
+              field: year_id
+      - name: municipality_id
+        description: "Foreign key to dim_municipality."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_municipality')
+              field: municipality_id
+      - name: bankruptcy_rate_cv_3y
+        description: "Rolling 3-year CV of bankruptcy_rate_per_1000 (bankruptcies per 1000 establishments). NULL when fewer than 3 years of data."
+      - name: employee_impact_cv_3y
+        description: "Rolling 3-year CV of bankrupt employees per 1000 personnel staff-years. NULL when fewer than 3 years of data."
+      - name: business_churn_cv_3y
+        description: "Rolling 3-year CV of establishments YoY % change. NULL when fewer than 3 years of data."
+      - name: personnel_cv_3y
+        description: "Rolling 3-year CV of raw personnel_staff_years. NULL when fewer than 3 years of data."
+      - name: demographic_stability_cv_3y
+        description: "Rolling 3-year CV of population YoY % change. NULL when fewer than 3 years of data."
+      - name: shock_exposure_composite
+        description: "Weighted composite of the five CV measures (0.35 bankruptcy + 0.25 employee impact + 0.20 business churn + 0.10 personnel + 0.10 demographic). NULL when fewer than 3 years of data."
+      - name: shock_resilience_ntile
+        description: "Raw ntile value (1=most resilient, 4=most fragile) partitioned by year on shock_exposure_composite ASC. NULL when fewer than 3 years of data."
+      - name: shock_resilience_class
+        description: "High Resilience / Moderate Resilience / Fragile / Crisis-prone — derived from shock_resilience_ntile. NULL when fewer than 3 years of data."
+      - name: bankruptcy_rate_per_1000
+        description: "Current-year bankruptcies per 1000 establishments (snapshot measure for dashboard context)."
+      - name: establishments_count
+        description: "Current-year establishment count (snapshot measure for dashboard context)."
+      - name: population
+        description: "Current-year population (snapshot measure for dashboard context)."
+      - name: deaths
+        description: "Current-year deaths (snapshot measure for dashboard context)."
+      - name: death_rate_per_1000
+        description: "Current-year deaths per 1000 population (snapshot measure for dashboard context)."
+      - name: establishments_yoy_pct
+        description: "Year-over-year % change in establishments_count. NULL for first or non-consecutive municipality years."
+      - name: population_change_pct
+        description: "Year-over-year % change in population. NULL for first or non-consecutive municipality years."
