@@ -383,8 +383,10 @@ models:
       disruptions via rolling 3-year coefficient of variation across bankruptcy, business,
       and demographic volatility dimensions. Grain: one row per year per municipality.
       CV measures and shock_exposure_composite are NULL when fewer than 3 calendar years of
-      data exist for a municipality. shock_resilience_ntile uses ntile(4) partitioned by year
-      on shock_exposure_composite ASC: 1 = most resilient, 4 = most fragile (Crisis-prone).
+      data exist for a municipality. business_churn_cv_3y and demographic_stability_cv_3y
+      additionally require 2+ non-null YoY inputs. shock_resilience_ntile uses ntile(4)
+      partitioned by year on shock_exposure_composite ASC: 1 = most resilient, 4 = most
+      fragile (Crisis-prone). The rolling window assumes consecutive annual data.
     tests:
       - dbt_utils.unique_combination_of_columns:
           arguments:
@@ -426,8 +428,12 @@ models:
         description: "Current-year establishment count (snapshot measure for dashboard context)."
       - name: population
         description: "Current-year population (snapshot measure for dashboard context)."
+        tests:
+          - not_null
       - name: deaths
         description: "Current-year deaths (snapshot measure for dashboard context)."
+        tests:
+          - not_null
       - name: death_rate_per_1000
         description: "Current-year deaths per 1000 population (snapshot measure for dashboard context)."
       - name: establishments_yoy_pct

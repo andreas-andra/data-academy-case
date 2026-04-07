@@ -4,6 +4,10 @@
 -- across bankruptcy, business, and demographic volatility dimensions.
 -- Grain: year × municipality
 -- CV measures are NULL when fewer than 3 consecutive years of data exist for a municipality.
+-- business_churn_cv_3y and demographic_stability_cv_3y additionally require 2+ non-null YoY
+-- inputs within the window to avoid under-powered 1-point standard deviations.
+-- The rolling window assumes a consecutive annual series; CVs may span non-adjacent years if
+-- the source data contains year gaps (unlikely for Finnish municipal data).
 -- shock_resilience_ntile uses ntile(4) partitioned by year on shock_exposure_composite ASC:
 --   1 = most resilient, 4 = most fragile (Crisis-prone).
 
@@ -185,17 +189,38 @@ with_cv as (
 
 ),
 
+with_yoy_counts as (
+
+    -- Count non-null YoY inputs within the rolling 3-year window.
+    -- business_churn_cv and demographic_stability_cv are derived from YoY % changes,
+    -- which are NULL in the first year. A 2+ non-null count ensures the CV is computed
+    -- from at least a 2-point standard deviation (avoiding 1-value stddev = 0 artefacts).
+    select
+        *,
+        count(establishments_yoy_pct) over (
+            partition by municipality order by year
+            rows between 2 preceding and current row
+        ) as yoy_est_count,
+        count(population_change_pct) over (
+            partition by municipality order by year
+            rows between 2 preceding and current row
+        ) as yoy_pop_count
+    from with_cv
+
+),
+
 with_guarded_cv as (
 
-    -- Null out all CVs when window has fewer than 3 calendar rows
+    -- Null out all CVs when window has fewer than 3 calendar rows.
+    -- For YoY-derived CVs, additionally require 2+ non-null YoY inputs.
     select
         *,
         case when window_row_count >= 3 then round(bankruptcy_rate_cv_3y_raw,       4) end as bankruptcy_rate_cv_3y,
         case when window_row_count >= 3 then round(employee_impact_cv_3y_raw,        4) end as employee_impact_cv_3y,
-        case when window_row_count >= 3 then round(business_churn_cv_3y_raw,         4) end as business_churn_cv_3y,
+        case when window_row_count >= 3 and yoy_est_count >= 2 then round(business_churn_cv_3y_raw,         4) end as business_churn_cv_3y,
         case when window_row_count >= 3 then round(personnel_cv_3y_raw,              4) end as personnel_cv_3y,
-        case when window_row_count >= 3 then round(demographic_stability_cv_3y_raw,  4) end as demographic_stability_cv_3y
-    from with_cv
+        case when window_row_count >= 3 and yoy_pop_count >= 2 then round(demographic_stability_cv_3y_raw,  4) end as demographic_stability_cv_3y
+    from with_yoy_counts
 
 ),
 

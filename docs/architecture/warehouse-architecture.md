@@ -91,6 +91,9 @@ Examples of modeling problems addressed:
 - `fact_municipality_business_dynamics`
   - grain: `year x municipality`
   - purpose: track municipality-level business base growth and decline over time, combining establishment counts, personnel, and population into density and growth metrics
+- `fact_economic_shock_exposure`
+  - grain: `year x municipality`
+  - purpose: measure municipality vulnerability to sudden economic disruptions via rolling 3-year coefficient of variation across bankruptcy, business, and demographic volatility dimensions
 
 ## Industry Labor Impact Model In Context
 

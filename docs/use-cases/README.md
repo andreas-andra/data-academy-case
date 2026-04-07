@@ -26,6 +26,8 @@ This folder contains business-facing documentation for the gold-layer use cases 
    Municipality- and industry-level view of where bankruptcy structure is overrepresented relative to the national pattern.
 11. `municipality-business-dynamics.md`
    Municipality-level business base growth and decline tracking with establishment density and personnel trends.
+12. `economic-shock-exposure.md`
+   Municipality-level economic shock exposure index measuring vulnerability via rolling 3-year coefficient of variation across bankruptcy, business, and demographic volatility.
 
 ## Related Dashboard Assets
 
@@ -51,6 +53,8 @@ This folder contains business-facing documentation for the gold-layer use cases 
    Dashboard guidance and prompt assets for the mortality and population-change use case.
 11. `docs/genie-dashboards/municipality-business-dynamics.md`
    Dashboard guidance and prompt assets for the municipality business dynamics use case.
+12. `docs/genie-dashboards/economic-shock-exposure.md`
+   Dashboard guidance and prompt assets for the economic shock exposure index use case.
 
 ## Industry Bankruptcy Specialization Bundle
 
